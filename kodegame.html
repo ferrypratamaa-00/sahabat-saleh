@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petualangan Si Saleh &amp; Si Salihah</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+    
+    * {
+      font-family: 'Fredoka', sans-serif;
+    }
+    
+    .game-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .game-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    
+    .wudu-part {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .wudu-part:hover {
+      transform: scale(1.1);
+    }
+    
+    .wudu-part.completed {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .water-splash {
+      animation: splash 0.6s ease-out;
+    }
+    
+    @keyframes splash {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    
+    .hijaiyah-letter {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .hijaiyah-letter:hover {
+      transform: scale(1.15);
+    }
+    
+    .hijaiyah-letter.correct {
+      animation: bounce 0.5s ease;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .apple {
+      transition: all 0.3s ease;
+      cursor: grab;
+    }
+    
+    .apple:active {
+      cursor: grabbing;
+    }
+    
+    .clothing-item {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .clothing-item:hover:not(.disabled) {
+      transform: scale(1.1);
+    }
+    
+    .clothing-item.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .prayer-move {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .prayer-move:hover {
+      transform: scale(1.05);
+    }
+    
+    .drop-zone {
+      transition: all 0.3s ease;
+    }
+    
+    .drop-zone.active {
+      background-color: rgba(74, 222, 128, 0.2);
+      border-color: #4ade80;
+    }
+    
+    .star-icon {
+      animation: twinkle 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    
+    .loading-spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full">
+  <div id="app" class="w-full h-full"></div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fef3c7",
+      card_color: "#ffffff",
+      text_color: "#1f2937",
+      primary_button_color: "#10b981",
+      secondary_button_color: "#f59e0b",
+      game_title: "Petualangan Si Saleh & Si Salihah",
+      welcome_message: "Selamat datang di petualangan seru!",
+      start_button_text: "Mulai Bermain",
+      back_button_text: "Kembali",
+      font_family: "Fredoka",
+      font_size: 16
+    };
+
+    let currentRecordCount = 0;
+    let gameRecords = [];
+
+    const dataHandler = {
+      onDataChanged(data) {
+        gameRecords = data;
+        currentRecordCount = data.length;
+        updateProgressDisplay();
+      }
+    };
+
+    let currentScreen = 'menu';
+    let currentGame = null;
+    let gameState = {};
+
+    async function initApp() {
+      const initResult = await window.dataSdk.init(dataHandler);
+      if (!initResult.isOk) {
+        console.error("Failed to initialize data SDK");
+      }
+      
+      await window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          updateUI(config);
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.card_color || defaultConfig.card_color,
+              set: (value) => {
+                config.card_color = value;
+                window.elementSdk.setConfig({ card_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_button_color || defaultConfig.primary_button_color,
+              set: (value) => {
+                config.primary_button_color = value;
+                window.elementSdk.setConfig({ primary_button_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_button_color || defaultConfig.secondary_button_color,
+              set: (value) => {
+                config.secondary_button_color = value;
+                window.elementSdk.setConfig({ secondary_button_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["game_title", config.game_title || defaultConfig.game_title],
+          ["welcome_message", config.welcome_message || defaultConfig.welcome_message],
+          ["start_button_text", config.start_button_text || defaultConfig.start_button_text],
+          ["back_button_text", config.back_button_text || defaultConfig.back_button_text]
+        ])
+      });
+      
+      renderApp();
+    }
+
+    function updateUI(config) {
+      const app = document.getElementById('app');
+      if (!app) return;
+      
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'sans-serif';
+      const baseSize = config.font_size || defaultConfig.font_size;
+      
+      app.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      app.style.backgroundColor = config.background_color || defaultConfig.background_color;
+      app.style.color = config.text_color || defaultConfig.text_color;
+      
+      const title = document.getElementById('main-title');
+      if (title) {
+        title.textContent = config.game_title || defaultConfig.game_title;
+        title.style.fontSize = `${baseSize * 2}px`;
+      }
+      
+      const welcome = document.getElementById('welcome-message');
+      if (welcome) {
+        welcome.textContent = config.welcome_message || defaultConfig.welcome_message;
+        welcome.style.fontSize = `${baseSize * 1.125}px`;
+      }
+      
+      const startBtn = document.getElementById('start-button');
+      if (startBtn) {
+        startBtn.textContent = config.start_button_text || defaultConfig.start_button_text;
+        startBtn.style.backgroundColor = config.primary_button_color || defaultConfig.primary_button_color;
+        startBtn.style.fontSize = `${baseSize * 1.125}px`;
+      }
+      
+      const backBtns = document.querySelectorAll('.back-button');
+      backBtns.forEach(btn => {
+        btn.textContent = config.back_button_text || defaultConfig.back_button_text;
+        btn.style.backgroundColor = config.secondary_button_color || defaultConfig.secondary_button_color;
+        btn.style.fontSize = `${baseSize}px`;
+      });
+      
+      const cards = document.querySelectorAll('.game-card');
+      cards.forEach(card => {
+        card.style.backgroundColor = config.card_color || defaultConfig.card_color;
+      });
+      
+      const gameCards = document.querySelectorAll('.game-card-title');
+      gameCards.forEach(title => {
+        title.style.fontSize = `${baseSize * 1.25}px`;
+      });
+      
+      const bodyText = document.querySelectorAll('.body-text');
+      bodyText.forEach(text => {
+        text.style.fontSize = `${baseSize}px`;
+      });
+      
+      const smallText = document.querySelectorAll('.small-text');
+      smallText.forEach(text => {
+        text.style.fontSize = `${baseSize * 0.875}px`;
+      });
+    }
+
+    function renderApp() {
+      const config = window.elementSdk?.config || defaultConfig;
+      const app = document.getElementById('app');
+      
+      if (currentScreen === 'menu') {
+        app.innerHTML = renderMenu(config);
+      } else if (currentScreen === 'game') {
+        app.innerHTML = renderGame(config);
+      }
+      
+      updateUI(config);
+      attachEventListeners();
+    }
+
+    function renderMenu(config) {
+      return `
+        <div class="w-full h-full overflow-auto p-6" style="background-color: ${config.background_color || defaultConfig.background_color};">
+          <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-8">
+              <h1 id="main-title" class="font-bold mb-3" style="color: ${config.text_color || defaultConfig.text_color};">
+                ${config.game_title || defaultConfig.game_title}
+              </h1>
+              <p id="welcome-message" class="body-text" style="color: ${config.text_color || defaultConfig.text_color};">
+                ${config.welcome_message || defaultConfig.welcome_message}
+              </p>
+              <div class="mt-4 flex items-center justify-center gap-2">
+                <span class="star-icon text-2xl">⭐</span>
+                <span id="progress-display" class="small-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Game Selesai: 0
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${renderGameCard('wudu', '💧 Wudu Seru!', 'Belajar urutan wudu yang benar', config)}
+              ${renderGameCard('hijaiyah', '📖 Jejak Huruf Hijaiyah', 'Kenali huruf-huruf Hijaiyah', config)}
+              ${renderGameCard('berbagi', '🍎 Saatnya Berbagi', 'Belajar berbagi dengan sesama', config)}
+              ${renderGameCard('pakaian', '👕 Pakaian Ke Masjid', 'Pilih pakaian yang sopan', config)}
+              ${renderGameCard('salat', '🕌 Menyusun Gerakan Salat', 'Susun gerakan salat dengan benar', config)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGameCard(gameId, title, description, config) {
+      return `
+        <div class="game-card rounded-2xl p-6 shadow-lg cursor-pointer" 
+             style="background-color: ${config.card_color || defaultConfig.card_color};"
+             onclick="startGame('${gameId}')">
+          <h3 class="game-card-title font-bold mb-2" style="color: ${config.text_color || defaultConfig.text_color};">
+            ${title}
+          </h3>
+          <p class="body-text" style="color: ${config.text_color || defaultConfig.text_color}; opacity: 0.8;">
+            ${description}
+          </p>
+          <button id="start-button" class="mt-4 px-6 py-3 rounded-xl text-white font-semibold w-full"
+                  style="background-color: ${config.primary_button_color || defaultConfig.primary_button_color};">
+            ${config.start_button_text || defaultConfig.start_button_text}
+          </button>
+        </div>
+      `;
+    }
+
+    function renderGame(config) {
+      const games = {
+        wudu: renderWuduGame,
+        hijaiyah: renderHijaiyahGame,
+        berbagi: renderBerbagiGame,
+        pakaian: renderPakaianGame,
+        salat: renderSalatGame
+      };
+      
+      return games[currentGame](config);
+    }
+
+    function renderWuduGame(config) {
+      if (!gameState.wuduSteps) {
+        gameState.wuduSteps = [
+          { id: 'hands', name: 'Cuci Tangan', emoji: '🤲', completed: false },
+          { id: 'mouth', name: 'Berkumur', emoji: '👄', completed: false },
+          { id: 'nose', name: 'Hirup Air', emoji: '👃', completed: false },
+          { id: 'face', name: 'Basuh Muka', emoji: '😊', completed: false },
+          { id: 'arms', name: 'Basuh Tangan', emoji: '💪', completed: false },
+          { id: 'head', name: 'Usap Kepala', emoji: '👤', completed: false }
+        ];
+        gameState.currentStep = 0;
+        gameState.score = 0;
+      }
+
+      const currentStepData = gameState.wuduSteps[gameState.currentStep];
+
+      return `
+        <div class="w-full h-full overflow-auto p-6" style="background-color: ${config.background_color || defaultConfig.background_color};">
+          <div class="max-w-4xl mx-auto">
+            <button class="back-button px-6 py-2 rounded-xl text-white font-semibold mb-6"
+                    style="background-color: ${config.secondary_button_color || defaultConfig.secondary_button_color};"
+                    onclick="backToMenu()">
+              ${config.back_button_text || defaultConfig.back_button_text}
+            </button>
+
+            <div class="game-card rounded-2xl p-8 shadow-lg text-center"
+                 style="background-color: ${config.card_color || defaultConfig.card_color};">
+              <h2 class="game-card-title font-bold mb-6" style="color: ${config.text_color || defaultConfig.text_color};">
+                💧 Wudu Seru!
+              </h2>
+              
+              <div class="mb-6">
+                <p class="body-text mb-2" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Langkah ${gameState.currentStep + 1} dari ${gameState.wuduSteps.length}
+                </p>
+                <p class="text-3xl font-bold mb-4" style="color: ${config.primary_button_color || defaultConfig.primary_button_color};">
+                  ${currentStepData ? currentStepData.name : ''}
+                </p>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                ${gameState.wuduSteps.map(step => `
+                  <div class="wudu-part ${step.completed ? 'completed' : ''} p-6 rounded-xl border-4 border-dashed"
+                       style="border-color: ${config.primary_button_color || defaultConfig.primary_button_color}; background-color: ${config.background_color || defaultConfig.background_color};"
+                       onclick="selectWuduPart('${step.id}')">
+                    <div class="text-6xl mb-2">${step.emoji}</div>
+                    <p class="small-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                      ${step.name}
+                    </p>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div id="wudu-feedback" class="body-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                Klik bagian tubuh yang benar!
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHijaiyahGame(config) {
+      if (!gameState.hijaiyahLetters) {
+        gameState.hijaiyahLetters = [
+          { id: 'alif', letter: 'ا', name: 'Alif' },
+          { id: 'ba', letter: 'ب', name: 'Ba' },
+          { id: 'ta', letter: 'ت', name: 'Ta' },
+          { id: 'tsa', letter: 'ث', name: 'Tsa' }
+        ];
+        gameState.targetLetter = gameState.hijaiyahLetters[0];
+        gameState.score = 0;
+        gameState.round = 1;
+      }
+
+      return `
+        <div class="w-full h-full overflow-auto p-6" style="background-color: ${config.background_color || defaultConfig.background_color};">
+          <div class="max-w-4xl mx-auto">
+            <button class="back-button px-6 py-2 rounded-xl text-white font-semibold mb-6"
+                    style="background-color: ${config.secondary_button_color || defaultConfig.secondary_button_color};"
+                    onclick="backToMenu()">
+              ${config.back_button_text || defaultConfig.back_button_text}
+            </button>
+
+            <div class="game-card rounded-2xl p-8 shadow-lg text-center"
+                 style="background-color: ${config.card_color || defaultConfig.card_color};">
+              <h2 class="game-card-title font-bold mb-6" style="color: ${config.text_color || defaultConfig.text_color};">
+                📖 Jejak Huruf Hijaiyah
+              </h2>
+              
+              <div class="mb-8">
+                <p class="body-text mb-4" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Putaran ${gameState.round} - Skor: ${gameState.score}
+                </p>
+                <p class="text-2xl font-bold mb-2" style="color: ${config.primary_button_color || defaultConfig.primary_button_color};">
+                  Cari huruf:
+                </p>
+                <p class="text-6xl font-bold" style="color: ${config.text_color || defaultConfig.text_color};">
+                  ${gameState.targetLetter.name}
+                </p>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                ${gameState.hijaiyahLetters.map(letter => `
+                  <div class="hijaiyah-letter p-8 rounded-xl border-4"
+                       style="border-color: ${config.primary_button_color || defaultConfig.primary_button_color}; background-color: ${config.background_color || defaultConfig.background_color};"
+                       onclick="selectHijaiyah('${letter.id}')">
+                    <div class="text-7xl font-bold" style="color: ${config.text_color || defaultConfig.text_color};">
+                      ${letter.letter}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div id="hijaiyah-feedback" class="body-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                Pilih huruf yang benar!
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBerbagiGame(config) {
+      if (!gameState.apples) {
+        gameState.apples = 5;
+        gameState.shared = 0;
+        gameState.needHelp = [
+          { id: 'cat', name: '🐱 Kucing', needed: 2 },
+          { id: 'friend', name: '👦 Teman', needed: 2 }
+        ];
+      }
+
+      return `
+        <div class="w-full h-full overflow-auto p-6" style="background-color: ${config.background_color || defaultConfig.background_color};">
+          <div class="max-w-4xl mx-auto">
+            <button class="back-button px-6 py-2 rounded-xl text-white font-semibold mb-6"
+                    style="background-color: ${config.secondary_button_color || defaultConfig.secondary_button_color};"
+                    onclick="backToMenu()">
+              ${config.back_button_text || defaultConfig.back_button_text}
+            </button>
+
+            <div class="game-card rounded-2xl p-8 shadow-lg"
+                 style="background-color: ${config.card_color || defaultConfig.card_color};">
+              <h2 class="game-card-title font-bold mb-6 text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                🍎 Saatnya Berbagi
+              </h2>
+              
+              <div class="text-center mb-8">
+                <p class="body-text mb-4" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Si Saleh punya ${gameState.apples} apel. Yuk berbagi!
+                </p>
+                <div class="flex justify-center gap-3 mb-6">
+                  ${Array(gameState.apples).fill('🍎').map((apple, i) => `
+                    <div class="apple text-5xl" onclick="shareApple()">🍎</div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                ${gameState.needHelp.map(character => `
+                  <div class="p-6 rounded-xl text-center"
+                       style="background-color: ${config.background_color || defaultConfig.background_color}; border: 3px solid ${config.primary_button_color || defaultConfig.primary_button_color};">
+                    <div class="text-6xl mb-3">${character.name.split(' ')[0]}</div>
+                    <p class="body-text font-semibold mb-2" style="color: ${config.text_color || defaultConfig.text_color};">
+                      ${character.name.split(' ')[1]}
+                    </p>
+                    <p class="small-text" style="color: ${config.text_color || defaultConfig.text_color};">
+                      Butuh ${character.needed} apel
+                    </p>
+                    <div id="shared-${character.id}" class="mt-3 text-3xl">
+                      ${Array(character.shared || 0).fill('🍎').join('')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div id="berbagi-feedback" class="body-text font-semibold text-center mt-6" style="color: ${config.text_color || defaultConfig.text_color};">
+                Klik apel untuk berbagi!
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPakaianGame(config) {
+      if (!gameState.clothes) {
+        gameState.clothes = [
+          { id: 'proper1', name: 'Baju Muslim', emoji: '🧕', proper: true },
+          { id: 'proper2', name: 'Gamis', emoji: '👳', proper: true },
+          { id: 'improper1', name: 'Baju Kotor', emoji: '👕', proper: false },
+          { id: 'improper2', name: 'Celana Pendek', emoji: '🩳', proper: false }
+        ];
+        gameState.selected = null;
+      }
+
+      return `
+        <div class="w-full h-full overflow-auto p-6" style="background-color: ${config.background_color || defaultConfig.background_color};">
+          <div class="max-w-4xl mx-auto">
+            <button class="back-button px-6 py-2 rounded-xl text-white font-semibold mb-6"
+                    style="background-color: ${config.secondary_button_color || defaultConfig.secondary_button_color};"
+                    onclick="backToMenu()">
+              ${config.back_button_text || defaultConfig.back_button_text}
+            </button>
+
+            <div class="game-card rounded-2xl p-8 shadow-lg"
+                 style="background-color: ${config.card_color || defaultConfig.card_color};">
+              <h2 class="game-card-title font-bold mb-6 text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                👕 Pakaian Ke Masjid
+              </h2>
+              
+              <div class="text-center mb-8">
+                <div class="text-8xl mb-4">🕌</div>
+                <p class="body-text" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Pilih pakaian yang sopan untuk ke masjid!
+                </p>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                ${gameState.clothes.map(cloth => `
+                  <div class="clothing-item ${!cloth.proper ? 'disabled' : ''} p-6 rounded-xl border-4 text-center"
+                       style="border-color: ${config.primary_button_color || defaultConfig.primary_button_color}; background-color: ${config.background_color || defaultConfig.background_color};"
+                       onclick="selectClothing('${cloth.id}', ${cloth.proper})">
+                    <div class="text-6xl mb-3">${cloth.emoji}</div>
+                    <p class="small-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                      ${cloth.name}
+                    </p>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div id="pakaian-feedback" class="body-text font-semibold text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                Pilih pakaian yang benar!
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSalatGame(config) {
+      if (!gameState.prayerMoves) {
+        gameState.prayerMoves = [
+          { id: 'stand', name: 'Berdiri', emoji: '🧍', order: 1 },
+          { id: 'rukuk', name: 'Rukuk', emoji: '🙇', order: 2 },
+          { id: 'sujud', name: 'Sujud', emoji: '🧎', order: 3 }
+        ];
+        gameState.dropZones = [null, null, null];
+        gameState.availableMoves = [...gameState.prayerMoves];
+      }
+
+      return `
+        <div class="w-full h-full overflow-auto p-6" style="background-color: ${config.background_color || defaultConfig.background_color};">
+          <div class="max-w-4xl mx-auto">
+            <button class="back-button px-6 py-2 rounded-xl text-white font-semibold mb-6"
+                    style="background-color: ${config.secondary_button_color || defaultConfig.secondary_button_color};"
+                    onclick="backToMenu()">
+              ${config.back_button_text || defaultConfig.back_button_text}
+            </button>
+
+            <div class="game-card rounded-2xl p-8 shadow-lg"
+                 style="background-color: ${config.card_color || defaultConfig.card_color};">
+              <h2 class="game-card-title font-bold mb-6 text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                🕌 Menyusun Gerakan Salat
+              </h2>
+              
+              <p class="body-text text-center mb-8" style="color: ${config.text_color || defaultConfig.text_color};">
+                Susun gerakan salat dengan urutan yang benar!
+              </p>
+
+              <div class="mb-8">
+                <p class="small-text font-semibold mb-4 text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Urutan yang Benar:
+                </p>
+                <div class="grid grid-cols-3 gap-4">
+                  ${gameState.dropZones.map((move, index) => `
+                    <div class="drop-zone p-6 rounded-xl border-4 border-dashed text-center min-h-32 flex flex-col items-center justify-center"
+                         style="border-color: ${config.primary_button_color || defaultConfig.primary_button_color}; background-color: ${config.background_color || defaultConfig.background_color};">
+                      ${move ? `
+                        <div class="text-5xl mb-2">${move.emoji}</div>
+                        <p class="small-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                          ${move.name}
+                        </p>
+                      ` : `
+                        <p class="small-text" style="color: ${config.text_color || defaultConfig.text_color}; opacity: 0.5;">
+                          Langkah ${index + 1}
+                        </p>
+                      `}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <p class="small-text font-semibold mb-4 text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                  Pilih Gerakan:
+                </p>
+                <div class="grid grid-cols-3 gap-4">
+                  ${gameState.availableMoves.map(move => `
+                    <div class="prayer-move p-6 rounded-xl border-4 text-center"
+                         style="border-color: ${config.primary_button_color || defaultConfig.primary_button_color}; background-color: ${config.card_color || defaultConfig.card_color};"
+                         onclick="selectPrayerMove('${move.id}')">
+                      <div class="text-5xl mb-2">${move.emoji}</div>
+                      <p class="small-text font-semibold" style="color: ${config.text_color || defaultConfig.text_color};">
+                        ${move.name}
+                      </p>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div id="salat-feedback" class="body-text font-semibold text-center" style="color: ${config.text_color || defaultConfig.text_color};">
+                Klik gerakan untuk menyusun urutan!
+              </div>
+
+              <button id="check-salat" class="mt-6 px-8 py-3 rounded-xl text-white font-semibold w-full"
+                      style="background-color: ${config.primary_button_color || defaultConfig.primary_button_color};"
+                      onclick="checkSalatOrder()">
+                Periksa Urutan
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function attachEventListeners() {
+      // Event listeners are attached via onclick in the HTML
+    }
+
+    function startGame(gameId) {
+      currentScreen = 'game';
+      currentGame = gameId;
+      gameState = {};
+      renderApp();
+    }
+
+    function backToMenu() {
+      currentScreen = 'menu';
+      currentGame = null;
+      gameState = {};
+      renderApp();
+    }
+
+    async function selectWuduPart(partId) {
+      const currentStepData = gameState.wuduSteps[gameState.currentStep];
+      const feedback = document.getElementById('wudu-feedback');
+      
+      if (partId === currentStepData.id) {
+        currentStepData.completed = true;
+        gameState.currentStep++;
+        gameState.score += 10;
+        
+        feedback.textContent = '✅ Benar! Lanjut ke langkah berikutnya!';
+        feedback.style.color = '#10b981';
+        
+        if (gameState.currentStep >= gameState.wuduSteps.length) {
+          feedback.textContent = '🎉 Hebat! Kamu berhasil menyelesaikan wudu!';
+          
+          if (currentRecordCount < 999) {
+            const result = await window.dataSdk.create({
+              game_name: 'Wudu Seru',
+              score: gameState.score,
+              completed: true,
+              timestamp: new Date().toISOString()
+            });
+            
+            if (!result.isOk) {
+              console.error('Failed to save game record');
+            }
+          }
+          
+          setTimeout(() => backToMenu(), 2000);
+        } else {
+          setTimeout(() => renderApp(), 1000);
+        }
+      } else {
+        feedback.textContent = '❌ Coba lagi! Pilih bagian yang benar.';
+        feedback.style.color = '#ef4444';
+      }
+    }
+
+    async function selectHijaiyah(letterId) {
+      const feedback = document.getElementById('hijaiyah-feedback');
+      
+      if (letterId === gameState.targetLetter.id) {
+        gameState.score += 10;
+        gameState.round++;
+        
+        feedback.textContent = '✅ Benar sekali!';
+        feedback.style.color = '#10b981';
+        
+        if (gameState.round > 4) {
+          feedback.textContent = '🎉 Hebat! Kamu mengenal semua huruf!';
+          
+          if (currentRecordCount < 999) {
+            const result = await window.dataSdk.create({
+              game_name: 'Jejak Huruf Hijaiyah',
+              score: gameState.score,
+              completed: true,
+              timestamp: new Date().toISOString()
+            });
+            
+            if (!result.isOk) {
+              console.error('Failed to save game record');
+            }
+          }
+          
+          setTimeout(() => backToMenu(), 2000);
+        } else {
+          const nextIndex = Math.floor(Math.random() * gameState.hijaiyahLetters.length);
+          gameState.targetLetter = gameState.hijaiyahLetters[nextIndex];
+          setTimeout(() => renderApp(), 1000);
+        }
+      } else {
+        feedback.textContent = '❌ Coba lagi!';
+        feedback.style.color = '#ef4444';
+      }
+    }
+
+    async function shareApple() {
+      if (gameState.apples > 0) {
+        gameState.apples--;
+        gameState.shared++;
+        
+        const needHelp = gameState.needHelp;
+        for (let character of needHelp) {
+          if (!character.shared) character.shared = 0;
+          if (character.shared < character.needed) {
+            character.shared++;
+            break;
+          }
+        }
+        
+        const allSatisfied = needHelp.every(c => c.shared >= c.needed);
+        const feedback = document.getElementById('berbagi-feedback');
+        
+        if (allSatisfied) {
+          feedback.textContent = '🎉 Hebat! Kamu sudah berbagi dengan semua!';
+          feedback.style.color = '#10b981';
+          
+          if (currentRecordCount < 999) {
+            const result = await window.dataSdk.create({
+              game_name: 'Saatnya Berbagi',
+              score: gameState.shared * 10,
+              completed: true,
+              timestamp: new Date().toISOString()
+            });
+            
+            if (!result.isOk) {
+              console.error('Failed to save game record');
+            }
+          }
+          
+          setTimeout(() => backToMenu(), 2000);
+        } else {
+          renderApp();
+        }
+      }
+    }
+
+    async function selectClothing(clothId, isProper) {
+      const feedback = document.getElementById('pakaian-feedback');
+      
+      if (isProper) {
+        feedback.textContent = '✅ Benar! Pakaian yang sopan dan bersih!';
+        feedback.style.color = '#10b981';
+        
+        if (currentRecordCount < 999) {
+          const result = await window.dataSdk.create({
+            game_name: 'Pakaian Ke Masjid',
+            score: 10,
+            completed: true,
+            timestamp: new Date().toISOString()
+          });
+          
+          if (!result.isOk) {
+            console.error('Failed to save game record');
+          }
+        }
+        
+        setTimeout(() => backToMenu(), 2000);
+      } else {
+        feedback.textContent = '❌ Pilih pakaian yang lebih sopan!';
+        feedback.style.color = '#ef4444';
+      }
+    }
+
+    function selectPrayerMove(moveId) {
+      const move = gameState.availableMoves.find(m => m.id === moveId);
+      if (!move) return;
+      
+      const emptyIndex = gameState.dropZones.findIndex(z => z === null);
+      if (emptyIndex !== -1) {
+        gameState.dropZones[emptyIndex] = move;
+        gameState.availableMoves = gameState.availableMoves.filter(m => m.id !== moveId);
+        renderApp();
+      }
+    }
+
+    async function checkSalatOrder() {
+      const feedback = document.getElementById('salat-feedback');
+      const isCorrect = gameState.dropZones.every((move, index) => 
+        move && move.order === index + 1
+      );
+      
+      if (isCorrect) {
+        feedback.textContent = '🎉 Sempurna! Urutan salat sudah benar!';
+        feedback.style.color = '#10b981';
+        
+        if (currentRecordCount < 999) {
+          const result = await window.dataSdk.create({
+            game_name: 'Menyusun Gerakan Salat',
+            score: 30,
+            completed: true,
+            timestamp: new Date().toISOString()
+          });
+          
+          if (!result.isOk) {
+            console.error('Failed to save game record');
+          }
+        }
+        
+        setTimeout(() => backToMenu(), 2000);
+      } else {
+        feedback.textContent = '❌ Belum benar. Coba susun ulang!';
+        feedback.style.color = '#ef4444';
+        
+        gameState.availableMoves = [...gameState.prayerMoves];
+        gameState.dropZones = [null, null, null];
+        renderApp();
+      }
+    }
+
+    function updateProgressDisplay() {
+      const display = document.getElementById('progress-display');
+      if (display) {
+        const completedGames = new Set(gameRecords.map(r => r.game_name)).size;
+        display.textContent = `Game Selesai: ${completedGames}/5`;
+      }
+    }
+
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9af295f5a578fd33',t:'MTc2NTkzNDI5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
