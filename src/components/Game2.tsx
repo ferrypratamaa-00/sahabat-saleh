@@ -5,16 +5,16 @@ import AudioManager from '../utils/AudioManager';
 import toast from 'react-hot-toast';
 
 const letters = [
-  { arabic: 'ا', name: 'ALIF', sound: 'Alif' },
-  { arabic: 'ب', name: 'BA', sound: 'Ba' },
-  { arabic: 'ت', name: 'TA', sound: 'Ta' },
-  { arabic: 'ث', name: 'TSA', sound: 'Tsa' },
-  { arabic: 'ج', name: 'JIM', sound: 'Jim' },
-  { arabic: 'ح', name: 'HA', sound: 'Ha' },
-  { arabic: 'خ', name: 'KHA', sound: 'Kha' },
-  { arabic: 'د', name: 'DAL', sound: 'Dal' },
-  { arabic: 'ذ', name: 'DZAL', sound: 'Dzal' },
-  { arabic: 'ر', name: 'RA', sound: 'Ra' },
+  { arabic: 'ا', name: 'ALIF', sound: 'Alif', audio: '/audio/wudu/huruf_alif.mp3' },
+  { arabic: 'ب', name: 'BA', sound: 'Ba', audio: '/audio/wudu/huruf_ba.mp3' },
+  { arabic: 'ت', name: 'TA', sound: 'Ta', audio: '/audio/wudu/huruf_ta.mp3' },
+  { arabic: 'ث', name: 'TSA', sound: 'Tsa', audio: '/audio/wudu/huruf_tsa.mp3' },
+  { arabic: 'ج', name: 'JIM', sound: 'Jim', audio: '/audio/wudu/huruf_jim.mp3' },
+  { arabic: 'ح', name: 'HA', sound: 'Ha', audio: '/audio/wudu/huruf_ha.mp3' },
+  { arabic: 'خ', name: 'KHA', sound: 'Kha', audio: '/audio/wudu/huruf_kha.mp3' },
+  { arabic: 'د', name: 'DAL', sound: 'Dal', audio: '/audio/wudu/huruf_dal.mp3' },
+  { arabic: 'ذ', name: 'DZAL', sound: 'Dzal', audio: '/audio/wudu/huruf_dzal.mp3' },
+  { arabic: 'ر', name: 'RA', sound: 'Ra', audio: '/audio/wudu/huruf_ra.mp3' },
 ];
 
 interface Game2Props {
@@ -39,7 +39,12 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
     // Play sound saat huruf baru muncul
     if (targetLetter) {
       setTimeout(() => {
-        audioManager.speak(`Cari huruf ${targetLetter.name}`);
+        // "Cari huruf..." + [Huruf]
+        audioManager.stopAll();
+        audioManager.playSound('/audio/wudu/cari_huruf.mp3');
+        setTimeout(() => {
+          audioManager.playSound(targetLetter.audio);
+        }, 1000);
       }, 500);
     }
   }, [targetLetter]);
@@ -57,12 +62,22 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
   };
 
   const playLetterSound = () => {
-    audioManager.speak(`Huruf ${targetLetter.name}`);
+    audioManager.stopAll();
+    audioManager.playSound(targetLetter.audio);
   };
 
   const handleSelect = (letter: typeof letters[0]) => {
+    audioManager.stopAll();
+
     if (letter.arabic === targetLetter.arabic) {
-      audioManager.speak(`MasyaAllah! Benar, ini huruf ${letter.name}`);
+      audioManager.playSound('/audio/wudu/benar.mp3'); // Or specific "Benar, ini huruf..."
+      // Optionally play specific feedback: "MasyaAllah! Benar, ini huruf [Nama]" 
+      // But we just use generic generic positive + letter name for simplicity or just "Benar"
+      
+      setTimeout(() => {
+         audioManager.playSound(letter.audio);
+      }, 1000);
+
       toast.success(`Benar! Huruf ${letter.name}`, { icon: '✨', duration: 2000 });
       setScore(score + 1);
       setShowResult(true);
@@ -72,13 +87,13 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
         if (round + 1 < totalRounds) {
           setRound(round + 1);
         } else {
-          audioManager.speak(`Alhamdulillah! Kamu berhasil menemukan ${score + 1} huruf dengan benar!`);
+          audioManager.playSound('/audio/wudu/game2_selesai.mp3');
           toast.success('Hebat! Kamu menyelesaikan semua level!', { icon: '🏆', duration: 3000 });
-          setTimeout(onComplete, 2000);
+          setTimeout(onComplete, 3000);
         }
       }, 2000);
     } else {
-      audioManager.speak('Hmm, coba dengarkan lagi ya');
+      audioManager.playSound('/audio/wudu/coba_dengarkan_lagi.mp3');
       toast('Belum tepat, coba lagi! 🎧', { icon: '🤔', duration: 1500 });
     }
   };

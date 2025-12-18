@@ -5,12 +5,12 @@ import AudioManager from '../utils/AudioManager';
 import toast from 'react-hot-toast';
 
 const steps = [
-  { name: 'Niat', emoji: '🤲', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe' },
-  { name: 'Mencuci Tangan', emoji: '👐', icon: Hand, sound: 'Cuci tangan kanan dan kiri tiga kali', color: '#dbeafe' },
-  { name: 'Berkumur', emoji: '😊', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff' },
-  { name: 'Istinsyaq', emoji: '👃', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff' },
-  { name: 'Mencuci Muka', emoji: '😌', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe' },
-  { name: 'Selesai!', emoji: '✨', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7' },
+  { name: 'Niat', emoji: '🤲', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/wudu/niat_wudu.mp3' },
+  { name: 'Mencuci Tangan', emoji: '👐', icon: Hand, sound: 'Cuci tangan kanan dan kiri tiga kali', color: '#dbeafe', audio: '/audio/wudu/cuci_tangan.mp3' },
+  { name: 'Berkumur', emoji: '😊', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff', audio: '/audio/wudu/berkumur.mp3' },
+  { name: 'Istinsyaq', emoji: '👃', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff', audio: '/audio/wudu/istinsyaq.mp3' },
+  { name: 'Mencuci Muka', emoji: '😌', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe', audio: '/audio/wudu/cuci_muka.mp3' },
+  { name: 'Selesai!', emoji: '✨', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7', audio: '/audio/wudu/wudu_selesai.mp3' },
 ];
 
 interface Game1Props {
@@ -33,7 +33,10 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
 
   useEffect(() => {
     if (gameMode === 'learn' && currentStep < steps.length) {
-      audioManager.speak(steps[currentStep].sound);
+      // Stop previous audio first? AudioManager.stopAll() handles it if implemented, 
+      // but playSound appends. Let's stop all first.
+      audioManager.stopAll();
+      audioManager.playSound(steps[currentStep].audio);
     }
   }, [currentStep, gameMode]);
 
@@ -57,8 +60,16 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
     const clickedStep = shuffledSteps[index];
     const correctStep = steps[correctIndex];
 
+    audioManager.stopAll();
+
     if (clickedStep.name === correctStep.name) {
-      audioManager.speak('Benar! ' + clickedStep.sound);
+      // Play "Benar" then the step sound
+      audioManager.playSound('/audio/wudu/benar.mp3');
+      
+      setTimeout(() => {
+        audioManager.playSound(clickedStep.audio);
+      }, 1000); // Delay for "Benar" to finish approx
+
       toast.success('MasyaAllah! Benar!', { icon: '✅', duration: 1500 });
       
       const newSequence = [...userSequence, index];
@@ -66,13 +77,14 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
 
       if (newSequence.length === steps.length - 1) {
         setTimeout(() => {
-          audioManager.speak('Alhamdulillah! Kamu berhasil mengurutkan langkah wudu dengan benar!');
+          audioManager.stopAll();
+          audioManager.playSound('/audio/wudu/game_selesai.mp3');
           toast.success('Sempurna! Kamu menguasai urutan wudu!', { icon: '🌟', duration: 3000 });
-          setTimeout(onComplete, 2000);
-        }, 1000);
+          setTimeout(onComplete, 4000);
+        }, 2000);
       }
     } else {
-      audioManager.speak('Hmm, coba lagi ya');
+      audioManager.playSound('/audio/wudu/salah.mp3');
       toast('Ups! Coba ingat-ingat lagi urutannya ya', { icon: '🤔', duration: 2000 });
     }
   };

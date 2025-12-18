@@ -35,7 +35,7 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
     // Shuffle movements
     const shuffled = [...correctMovements].sort(() => Math.random() - 0.5);
     setAvailableMovements(shuffled);
-    audioManager.speak('Susun gerakan salat dengan urutan yang benar!');
+    audioManager.playSound('/audio/wudu/susun_gerakan.mp3');
   }, []);
 
   const handleDragStart = (movementId: string) => {
@@ -83,6 +83,7 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
 
   const handleCheck = () => {
     if (sequence.length !== correctMovements.length) {
+      audioManager.playSound('/audio/wudu/belum_lengkap.mp3');
       toast.error('Belum lengkap! Susun semua gerakan ya!', { icon: '📝' });
       return;
     }
@@ -92,11 +93,14 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
 
     if (isCorrect) {
       audioManager.playCorrect();
-      audioManager.speak('Alhamdulillah! Urutan salatmu benar!');
+      setTimeout(() => {
+        audioManager.playSound('/audio/wudu/urutan_benar.mp3');
+      }, 500);
+
       toast.success('MasyaAllah! Sempurna! 🎉', { duration: 3000 });
-      setTimeout(onComplete, 3000);
+      setTimeout(onComplete, 4000);
     } else {
-      audioManager.playWrong();
+      audioManager.playSound('/audio/wudu/urutan_salah.mp3');
       toast.error('Urutannya belum tepat. Coba lagi ya! 😊', { duration: 2000 });
       
       setTimeout(() => {

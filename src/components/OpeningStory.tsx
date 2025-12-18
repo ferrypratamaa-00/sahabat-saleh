@@ -15,7 +15,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
 
   useEffect(() => {
     setShowStars(true);
-    audioManager.speak('Selamat datang di petualangan Si Saleh dan Si Salihah!');
+    audioManager.playSound('/audio/wudu/opening_welcome.mp3');
   }, []);
 
   const handleStart = () => {

@@ -11,6 +11,7 @@ interface Recipient {
   need: number;
   received: number;
   message: string;
+  audio: string;
 }
 
 interface Game3Props {
@@ -30,10 +31,10 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     // Initialize game with random recipients
     const numRecipients = Math.floor(Math.random() * 2) + 2; // 2-3 recipients
     const allRecipients = [
-      { name: 'Adik Kecil', emoji: '👶', message: 'Terima kasih kakak!' },
-      { name: 'Teman', emoji: '👧', message: 'Barakallah!' },
-      { name: 'Nenek', emoji: '👵', message: 'MasyaAllah!' },
-      { name: 'Kucing', emoji: '🐱', message: 'Meow~' },
+      { name: 'Adik Kecil', emoji: '👶', message: 'Terima kasih kakak!', audio: '/audio/wudu/terima_kasih_kakak.mp3' },
+      { name: 'Teman', emoji: '👧', message: 'Barakallah!', audio: '/audio/wudu/barakallah.mp3' },
+      { name: 'Nenek', emoji: '👵', message: 'MasyaAllah!', audio: '/audio/wudu/masyaallah.mp3' },
+      { name: 'Kucing', emoji: '🐱', message: 'Meow~', audio: '/audio/wudu/meow.mp3' },
     ];
 
     const selectedRecipients: Recipient[] = allRecipients
@@ -57,7 +58,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     }));
     setApples(newApples);
 
-    audioManager.speak(`Ayo berbagi ${totalApples} apel kepada yang membutuhkan!`);
+    audioManager.playSound('/audio/wudu/ayo_berbagi.mp3');
   }, []);
 
   const handleDragStart = (appleId: string) => {
@@ -70,7 +71,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
 
     const recipient = recipients.find(r => r.id === recipientId);
     if (!recipient || recipient.received >= recipient.need) {
-      audioManager.playWrong();
+      audioManager.playSound('/audio/wudu/sudah_cukup.mp3');
       toast.error('Sudah cukup ya!', { icon: '😊' });
       setDraggedApple(null);
       return;
@@ -86,23 +87,27 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     setRecipients(newRecipients);
 
     audioManager.playCorrect();
-    
+    // audioManager.playSound('/audio/wudu/nambah_apel.mp3'); // Optional effect if we had a coin sound
+
     const updatedRecipient = newRecipients.find(r => r.id === recipientId);
     if (updatedRecipient && updatedRecipient.received === updatedRecipient.need) {
       toast.success(updatedRecipient.message, { 
         icon: updatedRecipient.emoji,
         duration: 2000 
       });
-      audioManager.speak(updatedRecipient.message);
+      // Play specific thank you audio
+      audioManager.stopAll();
+      audioManager.playSound(updatedRecipient.audio);
     }
 
     // Check if all complete
     if (newRecipients.every(r => r.received === r.need)) {
       setTimeout(() => {
         setIsComplete(true);
-        audioManager.speak('MasyaAllah! Kamu sudah berbagi dengan semua orang!');
+        audioManager.stopAll();
+        audioManager.playSound('/audio/wudu/masyaallah_berbagi.mp3');
         toast.success('Sempurna! Berbagi itu indah! 🎉', { duration: 3000 });
-        setTimeout(onComplete, 3000);
+        setTimeout(onComplete, 4000);
       }, 1000);
     }
 

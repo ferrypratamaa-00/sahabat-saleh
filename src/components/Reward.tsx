@@ -15,7 +15,9 @@ const Reward: React.FC<RewardProps> = memo(({ onPlayAgain }) => {
   useEffect(() => {
     // Play success sound
     audioManager.playCorrect();
-    audioManager.speak('Alhamdulillah! Kamu hebat!');
+    setTimeout(() => {
+      audioManager.playSound('/audio/wudu/reward_success.mp3');
+    }, 500);
 
     // Show stars one by one
     const interval = setInterval(() => {

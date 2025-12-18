@@ -42,7 +42,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
     const selected = [...correctItems, ...wrongItems].sort(() => Math.random() - 0.5);
     setClothingOptions(selected);
     
-    audioManager.speak('Pilih pakaian yang sopan untuk ke masjid!');
+    audioManager.playSound('/audio/wudu/pilih_pakaian.mp3');
   }, []);
 
   const handleSelectClothing = (item: ClothingItem) => {
@@ -61,6 +61,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
 
   const handleSubmit = () => {
     if (selectedItems.length === 0) {
+      audioManager.playSound('/audio/wudu/pilih_pakaian_dulu.mp3');
       toast.error('Pilih pakaian dulu ya!', { icon: '👕' });
       return;
     }
@@ -79,7 +80,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
     });
 
     if (wrongSelected.length > 0) {
-      audioManager.playWrong();
+      audioManager.playSound('/audio/wudu/kurang_tepat.mp3');
       toast.error('Ada yang kurang tepat. Coba lagi ya!', { 
         icon: '😊',
         duration: 2000 
@@ -91,14 +92,17 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
       }, 2000);
     } else if (correctSelected.length >= 3) {
       audioManager.playCorrect();
-      audioManager.speak('MasyaAllah! Pilihanmu sempurna!');
+      setTimeout(() => {
+         audioManager.playSound('/audio/wudu/pilihan_sempurna.mp3');
+      }, 500);
+      
       toast.success('Sempurna! Pakaianmu sangat sopan! 🎉', { duration: 3000 });
       
       setTimeout(() => {
         onComplete();
-      }, 3000);
+      }, 4000);
     } else {
-      audioManager.speak('Bagus! Tapi coba pilih lebih banyak lagi!');
+      audioManager.playSound('/audio/wudu/pilih_lebih_banyak.mp3');
       toast('Bagus! Pilih lebih banyak lagi ya! 😊', { 
         icon: '👍',
         duration: 2000 

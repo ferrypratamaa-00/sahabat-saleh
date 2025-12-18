@@ -102,21 +102,72 @@ class AudioManager {
 
   // Play text-to-speech
   speak(text: string, lang: string = 'id-ID'): void {
-    if (!this.isEnabled || !('speechSynthesis' in window)) return;
+    if (!this.isEnabled) return;
 
     // Stop audio sebelumnya
     this.stopAll();
 
+    // Try Google TTS first
+    this.playGoogleTTS(text, lang).catch(() => {
+      // Fallback to Web Speech API
+      this.speakFallback(text, lang);
+    });
+  }
+
+  private async playGoogleTTS(text: string, lang: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        // Use Google Translate TTS API (unofficial but widely used)
+        const encodedText = encodeURIComponent(text);
+        // Map common language codes slightly if needed, but 'id' is standard
+        const targetLang = lang.split('-')[0]; 
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodedText}`;
+        
+        const audio = new Audio(url);
+        audio.volume = 1;
+        
+        audio.oncanplaythrough = () => {
+          this.audioElements.push(audio);
+          audio.play().catch(reject);
+          resolve(); 
+        };
+
+        audio.onended = () => {
+          this.audioElements = this.audioElements.filter(a => a !== audio);
+        };
+
+        audio.onerror = (e) => {
+          this.audioElements = this.audioElements.filter(a => a !== audio);
+          reject(e);
+        };
+        
+        // Trigger load
+        audio.load();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  private speakFallback(text: string, lang: string): void {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
     try {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = lang;
-      utterance.rate = 0.9; // Sedikit lebih lambat untuk anak-anak
-      utterance.pitch = 1.1; // Sedikit lebih tinggi, lebih ceria
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
       
       speechSynthesis.speak(utterance);
     } catch (error) {
       console.warn('Speech synthesis failed:', error);
     }
+  }
+
+  private voiceStyle: 'normal' | 'chipmunk' = 'chipmunk';
+
+  setVoiceStyle(style: 'normal' | 'chipmunk') {
+    this.voiceStyle = style;
   }
 
   // Play audio file
@@ -126,18 +177,33 @@ class AudioManager {
     try {
       const audio = new Audio(src);
       audio.volume = volume;
+
+      // Apply chipmunk effect if enabled
+      if (this.voiceStyle === 'chipmunk') {
+        const rate = 1.3; // Lebih kartun lagi (sedikit di bawah 1.35)
+        audio.playbackRate = rate;
+        
+        // Critically, we MUST disable pitch preservation to get the "chipmunk" effect (high pitch)
+        // when speeding up. If preservesPitch is true (default), it just speaks faster but same pitch.
+        if ('preservesPitch' in audio) {
+          (audio as any).preservesPitch = false;
+        } else if ('mozPreservesPitch' in audio) {
+          (audio as any).mozPreservesPitch = false;
+        } else if ('webkitPreservesPitch' in audio) {
+          (audio as any).webkitPreservesPitch = false;
+        }
+      }
+
       audio.onended = () => {
         this.audioElements = this.audioElements.filter(a => a !== audio);
       };
       audio.onerror = () => {
-        // Fallback or silence
         this.audioElements = this.audioElements.filter(a => a !== audio);
       };
       
       this.audioElements.push(audio);
       audio.play().catch(() => {});
     } catch (error) {
-      // Ignore errors
     }
   }
 
