@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, RotateCcw } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -16,7 +16,7 @@ interface Game5Props {
   onComplete: () => void;
 }
 
-const Game5: React.FC<Game5Props> = ({ onBack, onComplete }) => {
+const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
   const correctMovements: Movement[] = [
     { id: '1', name: 'Takbiratul Ihram', emoji: '🤲', order: 1 },
     { id: '2', name: 'Berdiri (Qiyam)', emoji: '🧍', order: 2 },
@@ -228,6 +228,6 @@ const Game5: React.FC<Game5Props> = ({ onBack, onComplete }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default Game5;

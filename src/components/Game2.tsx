@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, ArrowLeft } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -22,7 +22,7 @@ interface Game2Props {
   onComplete: () => void;
 }
 
-const Game2: React.FC<Game2Props> = ({ onBack, onComplete }) => {
+const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
   const [targetLetter, setTargetLetter] = useState(letters[0]);
   const [options, setOptions] = useState<typeof letters>([]);
   const [score, setScore] = useState(0);
@@ -117,7 +117,7 @@ const Game2: React.FC<Game2Props> = ({ onBack, onComplete }) => {
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
             style={{
-              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+              background: 'var(--secondary-soft)',
               padding: 'clamp(1.5rem, 4vw, 2.5rem)',
               borderRadius: 'clamp(1rem, 3vw, 1.5rem)',
               margin: '2rem auto',
@@ -128,7 +128,7 @@ const Game2: React.FC<Game2Props> = ({ onBack, onComplete }) => {
             <p style={{ 
               fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
               fontWeight: 700, 
-              color: '#d97706',
+              color: 'var(--text-title)',
               marginBottom: '1rem'
             }}>
               Dengarkan dan cari huruf:
@@ -161,7 +161,7 @@ const Game2: React.FC<Game2Props> = ({ onBack, onComplete }) => {
                 alignItems: 'center',
                 gap: '0.5rem',
                 margin: '1rem auto',
-                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+                background: 'var(--info)',
                 fontSize: 'clamp(0.875rem, 2vw, 1rem)'
               }}
             >
@@ -192,7 +192,7 @@ const Game2: React.FC<Game2Props> = ({ onBack, onComplete }) => {
               <div style={{ 
                 fontSize: 'clamp(0.875rem, 2vw, 1rem)', 
                 marginTop: '0.5rem',
-                color: '#737373'
+                color: 'var(--text-muted)'
               }}>
                 {letter.name}
               </div>
@@ -212,6 +212,6 @@ const Game2: React.FC<Game2Props> = ({ onBack, onComplete }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default Game2;

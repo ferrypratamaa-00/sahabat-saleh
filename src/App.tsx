@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import './App.css';
 import OpeningStory from './components/OpeningStory';
 import GameMenu from './components/GameMenu';
@@ -13,6 +13,17 @@ import { Toaster } from 'react-hot-toast';
 
 type Page = 'opening' | 'menu' | 'game1' | 'game2' | 'game3' | 'game4' | 'game5' | 'reward';
 
+// Memoized Background Component
+const AnimatedBackground = memo(() => (
+  <div className="animated-bg">
+    <div className="floating-shape"></div>
+    <div className="floating-shape"></div>
+    <div className="floating-shape"></div>
+    <div className="floating-shape"></div>
+    <div className="floating-shape"></div>
+  </div>
+));
+
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('opening');
   const [completedGames, setCompletedGames] = useState<Set<number>>(new Set());
@@ -25,29 +36,51 @@ function App() {
 
   const games = [
     { id: 1, title: 'Wudu Seru', emoji: '💧', description: 'Belajar wudu dengan seru', completed: completedGames.has(1) },
-    { id: 2, title: 'Jejak Huruf Hijaiyah', emoji: '🔤', description: 'Cari huruf hijaiyah', completed: completedGames.has(2) },
-    { id: 3, title: 'Saatnya Berbagi', emoji: '🍎', description: 'Belajar berbagi', completed: completedGames.has(3) },
-    { id: 4, title: 'Pakaian Ke Masjid', emoji: '👕', description: 'Pilih pakaian sopan', completed: completedGames.has(4) },
-    { id: 5, title: 'Menyusun Gerakan Salat', emoji: '🕌', description: 'Susun gerakan salat', completed: completedGames.has(5) },
+    { id: 2, title: 'Jejak Huruf', emoji: '🔤', description: 'Cari huruf hijaiyah', completed: completedGames.has(2) },
+    { id: 3, title: 'Berbagi', emoji: '🍎', description: 'Belajar berbagi', completed: completedGames.has(3) },
+    { id: 4, title: 'Pakaian', emoji: '👕', description: 'Pilih pakaian sopan', completed: completedGames.has(4) },
+    { id: 5, title: 'Salat', emoji: '🕌', description: 'Susun gerakan salat', completed: completedGames.has(5) },
   ];
 
-  const handleStart = () => setCurrentPage('menu');
-  const handleSelectGame = (gameId: number) => {
+  const handleStart = useCallback(() => setCurrentPage('menu'), []);
+  
+  const handleSelectGame = useCallback((gameId: number) => {
     setCurrentPage(`game${gameId}` as Page);
-  };
-  const handleBack = () => setCurrentPage('menu');
-  const handleComplete = (gameId: number) => {
-    setCompletedGames(prev => new Set(prev).add(gameId));
-    if (completedGames.size + 1 === games.length) {
-      setCurrentPage('reward');
-    } else {
-      setCurrentPage('menu');
-    }
-  };
-  const handlePlayAgain = () => {
+  }, []);
+
+  const handleBack = useCallback(() => setCurrentPage('menu'), []);
+
+  const handleComplete = useCallback((gameId: number) => {
+    setCompletedGames(prev => {
+      const newSet = new Set(prev);
+      newSet.add(gameId);
+      return newSet;
+    });
+    
+    // We need to use valid logic here. Since state update is async, 
+    // we should check the size against games.length carefully. 
+    // However, for simplicity and since we just added one, checking size + 1 (if not present) is okay, 
+    // but using the set callback is safer for the set itself.
+    // Determining page navigation needs current state or effect.
+    // Let's do a simple check: if we just completed the last one, go to reward.
+    // But safely, we can just navigate to menu first, then useEffect could check for completion?
+    // Or just check here:
+    setCompletedGames(prev => {
+      const newSet = new Set(prev);
+      newSet.add(gameId);
+      if (newSet.size === games.length) {
+         setTimeout(() => setCurrentPage('reward'), 0);
+      } else {
+         setTimeout(() => setCurrentPage('menu'), 0);
+      }
+      return newSet;
+    });
+  }, [games.length]);
+
+  const handlePlayAgain = useCallback(() => {
     setCompletedGames(new Set());
     setCurrentPage('opening');
-  };
+  }, []);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -74,10 +107,11 @@ function App() {
 
   return (
     <div className="app">
+      <AnimatedBackground />
       <Toaster position="top-center" />
       {renderPage()}
     </div>
   );
 }
 
-export default App;
+export default React.memo(App);

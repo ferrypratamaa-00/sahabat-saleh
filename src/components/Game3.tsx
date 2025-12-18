@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ArrowLeft, Sparkles } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -18,7 +18,7 @@ interface Game3Props {
   onComplete: () => void;
 }
 
-const Game3: React.FC<Game3Props> = ({ onBack, onComplete }) => {
+const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
   const [apples, setApples] = useState<Array<{ id: string; x: number; y: number }>>([]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [draggedApple, setDraggedApple] = useState<string | null>(null);
@@ -233,6 +233,6 @@ const Game3: React.FC<Game3Props> = ({ onBack, onComplete }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default Game3;

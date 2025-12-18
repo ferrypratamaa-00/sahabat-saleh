@@ -1,4 +1,4 @@
-# 🕌 Petualangan Si Saleh & Si Salihah
+# 🕌 Petualangan Sahabat Saleh
 
 Game edukatif interaktif untuk anak 4-6 tahun belajar wudu, huruf hijaiyah, berbagi, dan salat!
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Star, RotateCcw, Sparkles } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -8,7 +8,7 @@ interface RewardProps {
   onPlayAgain: () => void;
 }
 
-const Reward: React.FC<RewardProps> = ({ onPlayAgain }) => {
+const Reward: React.FC<RewardProps> = memo(({ onPlayAgain }) => {
   const [stars, setStars] = useState(0);
   const audioManager = AudioManager.getInstance();
 
@@ -135,8 +135,8 @@ const Reward: React.FC<RewardProps> = ({ onPlayAgain }) => {
                 >
                   <Star 
                     size={60} 
-                    fill="#fbbf24" 
-                    color="#f59e0b"
+                    fill="#F7C948" 
+                    color="#F7C948"
                     className="star-icon"
                   />
                   <motion.div
@@ -218,6 +218,6 @@ const Reward: React.FC<RewardProps> = ({ onPlayAgain }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default Reward;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles, CheckCircle } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -17,7 +17,7 @@ interface Game4Props {
   onComplete: () => void;
 }
 
-const Game4: React.FC<Game4Props> = ({ onBack, onComplete }) => {
+const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
   const [clothingOptions, setClothingOptions] = useState<ClothingItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
@@ -189,6 +189,6 @@ const Game4: React.FC<Game4Props> = ({ onBack, onComplete }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default Game4;

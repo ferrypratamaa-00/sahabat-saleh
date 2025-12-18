@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Droplet, Hand, Smile, Wind, Sparkles, ArrowLeft } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -18,7 +18,7 @@ interface Game1Props {
   onComplete: () => void;
 }
 
-const Game1: React.FC<Game1Props> = ({ onBack, onComplete }) => {
+const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [shuffledSteps, setShuffledSteps] = useState<typeof steps>([]);
   const [userSequence, setUserSequence] = useState<number[]>([]);
@@ -110,7 +110,7 @@ const Game1: React.FC<Game1Props> = ({ onBack, onComplete }) => {
             <div style={{ fontSize: 'clamp(4rem, 10vw, 6rem)', marginBottom: '1rem' }}>
               {steps[currentStep].emoji}
             </div>
-            <h3 style={{ color: '#16a34a', marginBottom: '1rem' }}>
+            <h3 style={{ color: 'var(--text-title)', marginBottom: '1rem' }}>
               {steps[currentStep].name}
             </h3>
             <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)' }}>
@@ -193,6 +193,6 @@ const Game1: React.FC<Game1Props> = ({ onBack, onComplete }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default Game1;

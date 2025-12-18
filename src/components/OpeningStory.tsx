@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Settings, Palette } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -9,7 +9,7 @@ interface OpeningStoryProps {
   onTheme: () => void;
 }
 
-const OpeningStory: React.FC<OpeningStoryProps> = ({ onStart, onSettings, onTheme }) => {
+const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, onTheme }) => {
   const [showStars, setShowStars] = useState(false);
   const audioManager = AudioManager.getInstance();
 
@@ -75,7 +75,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = ({ onStart, onSettings, onThem
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         >
-          🕌 Petualangan Si Saleh & Si Salihah 🌙
+          🕌 Petualangan Sahabat Saleh 🌙
         </motion.h1>
 
         {/* Story text */}
@@ -194,6 +194,6 @@ const OpeningStory: React.FC<OpeningStoryProps> = ({ onStart, onSettings, onThem
       </motion.div>
     </div>
   );
-};
+});
 
 export default OpeningStory;
