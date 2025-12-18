@@ -1,53 +1,148 @@
-# React + TypeScript + Vite
+# 🕌 Petualangan Si Saleh & Si Salihah
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Game edukatif interaktif untuk anak 4-6 tahun belajar wudu, huruf hijaiyah, berbagi, dan salat!
 
-Currently, two official plugins are available:
+## ✨ Fitur Utama
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **🎮 5 Game Interaktif & Challenging**
+  - **Wudu Seru**: Urutan langkah-langkah wudu yang benar
+  - **Jejak Huruf Hijaiyah**: Memory game dengan audio puzzle
+  - **Saatnya Berbagi**: Drag & drop apel untuk berbagi
+  - **Pakaian Ke Masjid**: Pilih pakaian yang sopan dengan multiple selection
+  - **Menyusun Gerakan Salat**: Drag & drop urutan gerakan salat yang benar
 
-## React Compiler
+- **🎨 Design Soft & Menarik**
+  - Warna-warna pastel yang soft dan eye-friendly untuk anak
+  - Animasi smooth dan engaging
+  - Responsive design (mobile, tablet, desktop)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **📱 PWA (Progressive Web App)**
+  - Bisa diakses offline
+  - Bisa di-install di home screen
+  - Cepat dan smooth seperti native app
 
-## Expanding the ESLint configuration
+- **🔊 Audio Interaktif**
+  - Text-to-Speech untuk panduan
+  - Sound effects untuk feedback
+  - Audio control yang smart (tidak loop tanpa perlu)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **⭐ Gamification**
+  - Progress tracking
+  - Star rewards dengan animasi
+  - Confetti celebration saat selesai
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚀 Quick Start
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Development
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Build untuk Production
+\`\`\`bash
+npm run build
+npm run preview
+\`\`\`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📋 Requirements
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
+- Node.js 16+
+- Modern browser dengan support untuk:
+  - Web Audio API
+  - Service Workers
+  - LocalStorage
+
+## 🎯 Deployment
+
+### Untuk Vercel
+\`\`\`bash
+npm install -g vercel
+vercel
+\`\`\`
+
+### Untuk Firebase Hosting
+\`\`\`bash
+npm install -g firebase-tools
+firebase init
+firebase deploy
+\`\`\`
+
+### Untuk Netlify
+\`\`\`bash
+npm install -g netlify-cli
+netlify deploy --prod --dir=dist
+\`\`\`
+
+## 🔧 Tech Stack
+
+- **React 18** - UI Framework
+- **TypeScript** - Type Safety
+- **Framer Motion** - Animations
+- **Vite** - Build Tool
+- **Canvas Confetti** - Celebration Effects
+- **React Hot Toast** - Notifications
+- **Lucide React** - Icons
+
+## 📦 PWA Features
+
+- ✅ Manifest.json untuk install ke home screen
+- ✅ Service Worker untuk offline capability
+- ✅ Meta tags untuk mobile optimization
+- ✅ Viewport optimization
+
+## 🎮 Game Rules
+
+### Game 1: Wudu Seru
+- Klik tombol untuk belajar urutan wudu
+- Ikuti urutan yang benar
+- Setiap step ditunjukkan dengan visual dan audio
+
+### Game 2: Jejak Huruf Hijaiyah
+- Dengarkan bunyi huruf
+- Cari huruf yang sesuai
+- Mini game memory berbasis audio
+
+### Game 3: Saatnya Berbagi
+- Seret apel dari keranjang ke orang yang membutuhkan
+- Setiap orang membutuhkan jumlah berbeda
+- Drop zone interaktif
+
+### Game 4: Pakaian Ke Masjid
+- Pilih pakaian yang sopan untuk ke masjid
+- Minimal 3 pilihan harus benar
+- Feedback visual untuk pilihan
+
+### Game 5: Menyusun Gerakan Salat
+- Seret gerakan salat ke urutan yang benar
+- 6 gerakan total
+- Verifikasi urutan dengan tombol "Cek Urutan"
+
+## 📱 Mobile Optimization
+
+- Viewport yang optimal untuk mobile
+- Touch-friendly buttons dan interactions
+- Fullscreen PWA mode
+- Safe area support untuk notch/island
+
+## 🐛 Browser Support
+
+- Chrome/Chromium 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## 📞 Support
+
+Untuk bug reports atau feature requests, silakan buat issue di repository ini.
+
+## 📄 License
+
+MIT License - feel free to use for personal and commercial projects!
+
+---
+
+**Dibuat dengan ❤️ untuk anak-anak Muslim Indonesia** 🇮🇩
 import reactDom from 'eslint-plugin-react-dom'
 
 export default defineConfig([

@@ -1,399 +1,330 @@
 # 🕌 SAHABAT SALEH
 
-## MVP FULL PROJECT GENERATION PROMPT
+## SUPER FINAL PROMPT (REFERENCE-BASED, CHILD PSYCHOLOGY FIRST)
 
-**Game Edukatif PAI Anak Usia 4–6 Tahun**
-**Vite + React | Mini Games | Audio-Visual First**
+**React + Vite | Interactive Educational Game for Kids (4–6)**
 
 ---
 
-## 0. PERAN AI / COPILOT (WAJIB DIIKUTI)
+## 0️⃣ PERAN AI / COPILOT (WAJIB & MUTLAK)
 
 Kamu bertindak sebagai:
 
-> **Senior Frontend Engineer + Educational Game Designer (Early Childhood)**
+> **Senior Frontend Engineer + Child Educational Game Designer**
 
-Tugas kamu:
+Kamu WAJIB:
 
-* Menghasilkan **SELURUH SOURCE CODE MVP**
-* Mengikuti **dokumen ini secara literal**
-* Tidak menambah asumsi di luar instruksi
-* Menghasilkan kode yang:
-
-  * stabil
-  * readable
-  * mudah dikembangkan
-
----
-
-## 1. TUJUAN MVP
-
-Membangun **game edukatif digital bernama *Sahabat Saleh*** dengan karakter ramah anak, berisi mini-games singkat untuk pengenalan:
-
-* Ibadah dasar
-* Akhlak terpuji
-* Adab sehari-hari
+* Mengikuti **SEMUA instruksi ini secara literal**
+* Meniru **FLOW, UX, dan INTERAKSI** dari reference gambar
+* Tidak menambah asumsi sendiri
+* Mengutamakan **keamanan psikologis anak**
 
 Target:
 
-* Anak usia **4–6 tahun**
-* Durasi bermain **5–10 menit**
-* **Tanpa teks panjang**
-* **Audio & visual dominan**
+> Game **interaktif, cerah, bersuara, animatif**, dan **tidak pernah error meski aset belum lengkap**
 
 ---
 
-## 2. PRINSIP DESAIN (HARD RULE)
+## 1️⃣ FILOSOFI DESAIN (PENTING)
 
-### 2.1 Prinsip Edukasi Anak
+Game ini **BUKAN quiz**, tapi:
 
+* Bermain sambil belajar
+* Eksplorasi
+* Reward positif
+
+### Prinsip Psikologis Anak:
+
+* ✅ Warna cerah
+* ✅ Teks besar
+* ✅ Respon instan (suara + animasi)
 * ❌ Tidak ada hukuman
-* ❌ Tidak ada “salah / gagal”
-* ✅ Feedback lembut
-* ✅ Dorongan positif
-
-### 2.2 Prinsip UX
-
-* Tap / click besar
-* Drag sederhana
-* Tidak butuh skill baca
-
-### 2.3 Prinsip Teknis
-
-* Kode **modular**
-* Tidak hardcode asset
-* Semua mini-game **isolated**
-* Mudah replace asset (image/audio)
+* ❌ Tidak ada kata “salah” keras
 
 ---
 
-## 3. TECH STACK (FIX – JANGAN DIUBAH)
+## 2️⃣ FLOW APLIKASI (HARUS PERSIS)
 
-* React (Vite)
-* JavaScript (bukan TypeScript)
-* CSS biasa
-* React Hooks:
-
-  * `useState`
-  * `useEffect`
-  * `useRef`
-* HTML5 Audio API
-
-❌ Redux
-❌ UI framework
-❌ Canvas / Phaser
-❌ Library berat
-
----
-
-## 4. STRUKTUR FOLDER (WAJIB SAMA)
-
-```txt
-src/
-├── assets/
-│   ├── images/
-│   │   ├── character.png
-│   │   ├── mosque.png
-│   │   ├── star.png
-│   │   └── placeholder.png
-│   └── audio/
-│       ├── bg-music.mp3
-│       ├── success.mp3
-│       ├── try-again.mp3
-│       └── click.mp3
-│
-├── components/
-│   ├── AudioPlayer.tsx
-│   ├── Button.tsx
-│   ├── GameCard.tsx
-│   └── ProgressStars.tsx
-│
-├── games/
-│   ├── WuduGame.tsx
-│   ├── HijaiyahGame.tsx
-│   ├── SharingGame.tsx
-│   ├── DressGame.tsx
-│   └── PrayerOrderGame.tsx
-│
-├── pages/
-│   ├── Home.tsx
-│   ├── GameHub.tsx
-│   └── Reward.tsx
-│
-├── data/
-│   └── gamesConfig.js
-│
-├── styles/
-│   └── global.css
-│
-├── App.tsx
-└── main.tsx
+```
+Opening Story
+   ↓
+Menu Utama
+   ↓
+Daftar Game
+   ↓
+Mini Game
+   ↓
+Kembali ke Daftar
+   ↓
+Reward Akhir
 ```
 
 ---
 
-## 5. APLIKASI FLOW (TIDAK BOLEH BERUBAH)
+## 3️⃣ STRUKTUR HALAMAN (WAJIB ADA)
 
-```
-Home
- ↓
-GameHub
- ↓
-Mini Game (berurutan)
- ↓
-Reward
-```
+### 📖 A. OPENING STORY (HALAMAN PERTAMA)
 
----
+Checklist:
 
-## 6. GAME CONFIGURATION (SINGLE SOURCE OF TRUTH)
+* [ ] Judul besar: **Petualangan Si Saleh & Si Salihah**
+* [ ] Cerita pendek (1–2 kalimat):
 
-### `gamesConfig.js`
+  > “Hari ini Si Saleh dan Si Salihah ingin belajar menjadi anak yang baik…”
+* [ ] Ilustrasi karakter (SafeImage)
+* [ ] Tombol besar:
 
-```js
-export const games = [
-  {
-    id: "wudu",
-    title: "Wudu Seru",
-    component: "WuduGame",
-    duration: 120
-  },
-  {
-    id: "hijaiyah",
-    title: "Jejak Hijaiyah",
-    component: "HijaiyahGame",
-    duration: 150
-  },
-  {
-    id: "sharing",
-    title: "Saatnya Berbagi",
-    component: "SharingGame",
-    duration: 90
-  },
-  {
-    id: "dress",
-    title: "Ke Masjid",
-    component: "DressGame",
-    duration: 120
-  },
-  {
-    id: "prayer",
-    title: "Gerakan Salat",
-    component: "PrayerOrderGame",
-    duration: 150
-  }
-];
-```
-
-GameHub HARUS:
-
-* membaca config ini
-* render game dinamis
-* urutan mengikuti array
-
----
-
-## 7. GLOBAL AUDIO SYSTEM
-
-### `AudioPlayer.tsx`
-
-Fungsi:
-
-* memainkan audio
-* reusable
-* aman jika audio gagal load
-
-Requirement:
-
-* props:
-
-  * `src`
-  * `autoPlay`
-  * `loop`
-* gunakan `useRef`
-* tidak crash
-* silent error
-
----
-
-## 8. HOME PAGE (`Home.tsx`)
-
-Isi:
-
-* Judul: **Sahabat Saleh**
-* Gambar karakter
-* Tombol besar **Mulai Bermain**
+  * **Mulai Bermain**
+  * **Pengaturan**
+  * **Tema**
 
 Behavior:
 
-* Klik tombol → masuk GameHub
-* Background music mulai pelan (loop)
+* Klik **Mulai Bermain** → Daftar Game
+* Tidak ada auto-start
 
 ---
 
-## 9. GAME HUB (`GameHub.tsx`)
+## 4️⃣ MENU / DAFTAR GAME
 
-### State Wajib
+(REFERENCE: GAMBAR PERTAMA)
 
-* `currentGameIndex`
-* `completedGames`
+Checklist:
 
-### Responsibility
+* [ ] Tampilan card (GameCard)
+* [ ] Judul game + ikon emoji
+* [ ] Deskripsi singkat
+* [ ] Tombol **Mulai Bermain**
+* [ ] Progress: `Game Selesai: X/5`
+* [ ] Layout 2 kolom (desktop)
 
-* Render mini-game aktif
-* Kirim callback `onFinish()`
-* Tampilkan progress ⭐
-
-### Logic
-
-* Setelah `onFinish` dipanggil:
-
-  * tambah progress
-  * lanjut ke game berikutnya
-* Jika semua selesai → Reward page
+❗ Tidak langsung masuk game tanpa klik
 
 ---
 
-## 10. MINI-GAME CONTRACT (WAJIB)
+## 5️⃣ GLOBAL RULE (BERLAKU UNTUK SEMUA GAME)
 
-SEMUA mini-game HARUS:
+### Wajib:
 
-* Menerima prop:
+* [ ] Tombol **Kembali** di kiri atas
+* [ ] Suara saat klik
+* [ ] Animasi hover / tap
+* [ ] Teks besar & berwarna
+* [ ] Respon instan
 
-  ```js
-  onFinish: () => void
-  ```
-* Tidak mengatur routing
-* Tidak mengakses global state
-* Mengatur logic internal sendiri
+### Asset Safety:
+
+* [ ] Image error → placeholder
+* [ ] Audio error → silent
+* [ ] Tidak crash
 
 ---
 
-## 11. MINI-GAME DETAIL
+## 6️⃣ SAFE COMPONENTS (HARUS ADA)
 
-### 11.1 WuduGame
+### `SafeImage.jsx`
 
-**Konsep**
-Klik urutan wudu.
+Checklist:
 
-```js
-const steps = ["tangan", "mulut", "wajah", "kepala"];
-```
+* [ ] `onError` fallback
+* [ ] Default placeholder
+* [ ] Tidak throw error
+
+### `SafeAudio.jsx`
+
+Checklist:
+
+* [ ] `try/catch`
+* [ ] Auto play optional
+* [ ] Silent fail
+* [ ] Bisa dipanggil berkali-kali
+
+---
+
+## 7️⃣ MINI GAME DETAIL (REFERENCE-BASED)
+
+---
+
+### 💧 GAME 1: WUDU SERU
+
+(REFERENCE: GAMBAR KEDUA)
+
+Checklist:
+
+* [ ] Judul besar
+* [ ] Step counter: `Langkah X dari 6`
+* [ ] Nama langkah **warna hijau besar**
+* [ ] Tiap langkah punya:
+
+  * Gambar (tangan, mulut, hidung, dll)
+  * Suara saat diklik
+  * Animasi (scale / glow)
 
 Behavior:
 
-* benar → success audio + animasi
-* salah → try-again audio
-* tidak reset
+* Klik benar → suara sukses + animasi
+* Klik salah → suara lembut
+* Tidak reset progress
 
 ---
 
-### 11.2 HijaiyahGame
+### 🔤 GAME 2: JEJAK HURUF HIJAIYAH
 
-**Konsep**
-Pilih huruf yang disebut.
+(REFERENCE: GAMBAR KETIGA)
+
+Checklist:
+
+* [ ] Teks besar: **Cari huruf: ALIF**
+* [ ] Warna kontras
+* [ ] Audio menyebut huruf
+* [ ] 3–4 pilihan huruf
+* [ ] Pilihan diacak setiap ronde
 
 Behavior:
 
-* tampil 3–4 huruf
-* audio menyebut target
-* klik benar → lanjut
-* tanpa penalti
+* Benar → “MasyaAllah!”
+* Salah → “Coba lagi ya”
+* Tidak ada skor keras
 
 ---
 
-### 11.3 SharingGame
+### 🍎 GAME 3: SAATNYA BERBAGI
 
-**Konsep**
-Drag apel ke yang membutuhkan.
+(REFERENCE: GAMBAR KEEMPAT)
+
+Checklist:
+
+* [ ] Jumlah apel **random**
+* [ ] Jumlah penerima **random**
+* [ ] Tiap penerima punya kebutuhan berbeda
+* [ ] Klik apel → berkurang
+* [ ] Suara tiap klik
 
 Behavior:
 
-* HTML5 drag & drop
-* minimal 2 apel
-* setelah cukup → finish
+* Jika cukup → selesai
+* Visual anak & hewan lucu
+* Edukasi berbagi tanpa tekanan
 
 ---
 
-### 11.4 DressGame
+### 👕 GAME 4: PAKAIAN KE MASJID
 
-**Konsep**
-Pilih pakaian ke masjid.
+(REFERENCE: GAMBAR KELIMA)
+
+Checklist:
+
+* [ ] Pilihan pakaian **acak**
+* [ ] Ada:
+
+  * Baju Muslim
+  * Gamis
+  * Hijab
+  * Pakaian tidak sopan
+* [ ] Gambar besar & jelas
+* [ ] Audio saat pilih
 
 Behavior:
 
-* pakaian benar → clickable
-* pakaian salah → disabled
-* feedback audio
+* Pilihan benar → animasi + suara
+* Pilihan salah → lembut & disable
 
 ---
 
-### 11.5 PrayerOrderGame
+### 🕌 GAME 5: MENYUSUN GERAKAN SALAT
 
-**Konsep**
-Susun urutan salat.
+(REFERENCE: GAMBAR KEENAM)
 
-Order benar:
+Checklist:
 
-```
-Berdiri → Rukuk → Sujud
-```
+* [ ] Gambar tiap gerakan
+* [ ] Urutan diacak
+* [ ] Drag / tap to place
+* [ ] Slot langkah 1–3
+* [ ] Warna hijau saat benar
 
 Behavior:
 
-* drag reorder
-* jika urutan benar → finish
+* Benar → pujian
+* Salah → bisa ulang tanpa reset
 
 ---
 
-## 12. REWARD PAGE (`Reward.tsx`)
+## 8️⃣ ANIMASI (WAJIB ADA)
 
-Isi:
+* [ ] Scale on click
+* [ ] Fade in
+* [ ] Glow hijau saat benar
+* [ ] Shake ringan saat salah
 
-* Bintang ⭐ muncul satu-satu
-* Gambar Ka'bah
-* Audio pujian
-* Tombol **Main Lagi**
-
----
-
-## 13. STYLE GUIDELINE (WAJIB)
-
-* Font besar
-* Kontras tinggi
-* Button ≥ 48px
-* Tidak ada teks panjang
-* Ramah sentuhan
+⚠️ Gunakan **CSS animation sederhana**
 
 ---
 
-## 14. LARANGAN KERAS
+## 9️⃣ AUDIO FEEDBACK (GLOBAL)
 
-❌ alert()
-❌ error merah
-❌ istilah teknis
-❌ console.log berlebihan
-❌ skor / ranking
+Checklist:
 
----
-
-## 15. EXPECTED RESULT
-
-* `bun run dev` → langsung jalan
-* Semua mini-game playable
-* Asset dummy bisa diganti tanpa ubah logic
-* Struktur rapi
-* Siap jadi PWA / mobile
+* [ ] Klik
+* [ ] Benar
+* [ ] Salah
+* [ ] Pujian
+* [ ] Background music (loop, pelan)
 
 ---
 
-## 16. FILOSOFI PRODUK
+## 🔟 REWARD AKHIR
 
-> Anak belajar **bukan karena disuruh**,
-> tapi karena **bermain itu menyenangkan**.
+Checklist:
+
+* [ ] Bintang muncul satu-satu
+* [ ] Suara “Alhamdulillah”
+* [ ] Tombol **Main Lagi**
+* [ ] Tidak reload page
 
 ---
 
-## 🔥 END OF MVP PROMPT
+## 1️⃣1️⃣ ROBUSTNESS CHECKLIST (WAJIB LOLOS)
 
-**Ikuti dokumen ini secara literal. Jangan improvisasi.**
+* [ ] Asset kosong → aman
+* [ ] Offline → tetap jalan
+* [ ] State reset aman
+* [ ] Tidak ada console error
+
+---
+
+# 📦 PWA + OFFLINE (FINAL EXTENSION)
+
+## Checklist:
+
+* [ ] `manifest.json`
+* [ ] `sw.js`
+* [ ] Cache First
+* [ ] Semua asset lokal
+* [ ] Installable
+* [ ] Offline playable
+
+Service Worker:
+
+* Jangan fail install
+* Jangan block UI
+* Silent fallback
+
+---
+
+## 🔚 FINAL VALIDATION CHECKLIST
+
+* [ ] Anak bisa klik tanpa baca
+* [ ] Warna cerah & ramah
+* [ ] Selalu ada respon
+* [ ] Tidak ada tekanan psikologis
+* [ ] Fun & engaging
+
+---
+
+## 🧠 FILOSOFI PENUTUP
+
+> Anak belajar paling cepat
+> saat mereka **merasa aman, senang, dan dihargai**.
+
+---

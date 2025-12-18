@@ -1,0 +1,233 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Sparkles, RotateCcw } from 'lucide-react';
+import AudioManager from '../utils/AudioManager';
+import toast from 'react-hot-toast';
+
+interface Movement {
+  id: string;
+  name: string;
+  emoji: string;
+  order: number;
+}
+
+interface Game5Props {
+  onBack: () => void;
+  onComplete: () => void;
+}
+
+const Game5: React.FC<Game5Props> = ({ onBack, onComplete }) => {
+  const correctMovements: Movement[] = [
+    { id: '1', name: 'Takbiratul Ihram', emoji: '🤲', order: 1 },
+    { id: '2', name: 'Berdiri (Qiyam)', emoji: '🧍', order: 2 },
+    { id: '3', name: 'Ruku', emoji: '🙇', order: 3 },
+    { id: '4', name: 'I\'tidal', emoji: '🧍', order: 4 },
+    { id: '5', name: 'Sujud', emoji: '🙏', order: 5 },
+    { id: '6', name: 'Duduk', emoji: '🧎', order: 6 },
+  ];
+
+  const [availableMovements, setAvailableMovements] = useState<Movement[]>([]);
+  const [sequence, setSequence] = useState<Movement[]>([]);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const audioManager = AudioManager.getInstance();
+
+  useEffect(() => {
+    // Shuffle movements
+    const shuffled = [...correctMovements].sort(() => Math.random() - 0.5);
+    setAvailableMovements(shuffled);
+    audioManager.speak('Susun gerakan salat dengan urutan yang benar!');
+  }, []);
+
+  const handleDragStart = (movementId: string) => {
+    setDraggedItem(movementId);
+    audioManager.playClick();
+  };
+
+  const handleDropInSequence = (position: number) => {
+    if (!draggedItem) return;
+
+    const movement = availableMovements.find(m => m.id === draggedItem);
+    if (!movement) return;
+
+    // Remove from available
+    setAvailableMovements(prev => prev.filter(m => m.id !== draggedItem));
+
+    // Add to sequence at position
+    const newSequence = [...sequence];
+    newSequence.splice(position, 0, movement);
+    setSequence(newSequence);
+
+    audioManager.playClick();
+    setDraggedItem(null);
+  };
+
+  const handleRemoveFromSequence = (movementId: string) => {
+    const movement = sequence.find(m => m.id === movementId);
+    if (!movement) return;
+
+    // Remove from sequence
+    setSequence(prev => prev.filter(m => m.id !== movementId));
+
+    // Add back to available
+    setAvailableMovements(prev => [...prev, movement]);
+
+    audioManager.playClick();
+  };
+
+  const handleReset = () => {
+    setAvailableMovements([...correctMovements].sort(() => Math.random() - 0.5));
+    setSequence([]);
+    audioManager.playClick();
+    toast('Ayo coba lagi!', { icon: '🔄' });
+  };
+
+  const handleCheck = () => {
+    if (sequence.length !== correctMovements.length) {
+      toast.error('Belum lengkap! Susun semua gerakan ya!', { icon: '📝' });
+      return;
+    }
+
+    // Check if order is correct
+    const isCorrect = sequence.every((movement, index) => movement.order === correctMovements[index].order);
+
+    if (isCorrect) {
+      audioManager.playCorrect();
+      audioManager.speak('Alhamdulillah! Urutan salatmu benar!');
+      toast.success('MasyaAllah! Sempurna! 🎉', { duration: 3000 });
+      setTimeout(onComplete, 3000);
+    } else {
+      audioManager.playWrong();
+      toast.error('Urutannya belum tepat. Coba lagi ya! 😊', { duration: 2000 });
+      
+      setTimeout(() => {
+        handleReset();
+      }, 2000);
+    }
+  };
+
+  return (
+    <div className="game-container">
+      <button className="back-btn" onClick={onBack}>
+        <ArrowLeft size={20} /> Kembali
+      </button>
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }}
+        className="game-content"
+      >
+        <h2 className="game-title">🕌 Menyusun Gerakan Salat</h2>
+        
+        <div className="game-instruction">
+          <Sparkles className="inline-icon" size={24} />
+          Seret gerakan ke urutan yang benar!
+        </div>
+
+        {/* Sequence Area */}
+        <div className="sequence-area">
+          <h3 className="sequence-title">Urutan Gerakan Salat:</h3>
+          <div className="sequence-slots">
+            <AnimatePresence>
+              {sequence.length === 0 && (
+                <motion.div
+                  className="empty-sequence"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  Seret gerakan ke sini
+                </motion.div>
+              )}
+              {sequence.map((movement, index) => (
+                <motion.div
+                  key={movement.id}
+                  className="sequence-item"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0, rotate: 180 }}
+                  onClick={() => handleRemoveFromSequence(movement.id)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="sequence-number">{index + 1}</div>
+                  <div className="sequence-emoji">{movement.emoji}</div>
+                  <div className="sequence-name">{movement.name}</div>
+                  <div className="remove-hint">Klik untuk hapus</div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            
+            {/* Drop zones between items */}
+            {sequence.length < correctMovements.length && (
+              <motion.div
+                className="drop-zone"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleDropInSequence(sequence.length)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                +
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        {/* Available Movements */}
+        <div className="available-movements">
+          <h3 className="available-title">Gerakan yang Tersedia:</h3>
+          <div className="movements-grid">
+            {availableMovements.map((movement, index) => (
+              <motion.div
+                key={movement.id}
+                className="movement-card"
+                draggable
+                onDragStart={() => handleDragStart(movement.id)}
+                onDragEnd={() => setDraggedItem(null)}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.08 }}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
+                style={{ cursor: 'grab' }}
+              >
+                <div className="movement-emoji">{movement.emoji}</div>
+                <div className="movement-name">{movement.name}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="action-buttons">
+          {sequence.length > 0 && (
+            <motion.button
+              className="reset-btn"
+              onClick={handleReset}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <RotateCcw size={20} /> Reset
+            </motion.button>
+          )}
+          
+          {sequence.length === correctMovements.length && (
+            <motion.button
+              className="check-btn"
+              onClick={handleCheck}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Sparkles size={20} /> Cek Urutan
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Game5;
