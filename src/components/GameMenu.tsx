@@ -24,7 +24,7 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
 
   useEffect(() => {
     // Only speak once on mount
-    audioManager.playInstruction('/audio/wudu/menu_instruction.mp3');
+    audioManager.playInstruction('/audio/menu_instruction.mp3');
   }, []); // Empty dependency array ensures this only runs once
 
   const handleSelectGame = (gameId: number) => {

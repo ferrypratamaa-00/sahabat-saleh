@@ -5,12 +5,12 @@ import AudioManager from '../utils/AudioManager';
 import toast from 'react-hot-toast';
 
 const steps = [
-  { name: 'Niat', emoji: '🤲', image: '/images/game1/wudu_niat.png', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/wudu/niat_wudu.mp3' },
-  { name: 'Mencuci Tangan', emoji: '👐', image: '/images/game1/wudu_tangan.png', icon: Hand, sound: 'Cuci tangan kanan dan kiri tiga kali', color: '#dbeafe', audio: '/audio/wudu/cuci_tangan.mp3' },
-  { name: 'Berkumur', emoji: '😊', image: '/images/game1/wudu_kumur.png', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff', audio: '/audio/wudu/berkumur.mp3' },
-  { name: 'Istinsyaq', emoji: '👃', image: '/images/game1/wudu_hidung.png', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff', audio: '/audio/wudu/istinsyaq.mp3' },
-  { name: 'Mencuci Muka', emoji: '😌', image: '/images/game1/wudu_muka.png', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe', audio: '/audio/wudu/cuci_muka.mp3' },
-  { name: 'Selesai!', emoji: '✨', image: '/images/game1/wudu_selesai.png', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7', audio: '/audio/wudu/wudu_selesai.mp3' },
+  { name: 'Niat', emoji: '🤲', image: '/images/game1/wudu_niat.png', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/niat_wudu.mp3' },
+  { name: 'Mencuci Tangan', emoji: '👐', image: '/images/game1/wudu_tangan.png', icon: Hand, sound: 'Cuci tangan kanan dan kiri tiga kali', color: '#dbeafe', audio: '/audio/cuci_tangan.mp3' },
+  { name: 'Berkumur', emoji: '😊', image: '/images/game1/wudu_kumur.png', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff', audio: '/audio/berkumur.mp3' },
+  { name: 'Istinsyaq', emoji: '👃', image: '/images/game1/wudu_hidung.png', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff', audio: '/audio/istinsyaq.mp3' },
+  { name: 'Mencuci Muka', emoji: '😌', image: '/images/game1/wudu_muka.png', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe', audio: '/audio/cuci_muka.mp3' },
+  { name: 'Selesai!', emoji: '✨', image: '/images/game1/wudu_selesai.png', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7', audio: '/audio/wudu_selesai.mp3' },
 ];
 
 interface Game1Props {
@@ -62,7 +62,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
 
     if (clickedStep.name === correctStep.name) {
       // Play "Benar" then the step sound
-      audioManager.playSound('/audio/wudu/benar.mp3');
+      audioManager.playSound('/audio/benar.mp3');
       
       setTimeout(() => {
         audioManager.playSound(clickedStep.audio);
@@ -76,13 +76,13 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
       if (newSequence.length === steps.length - 1) {
         setTimeout(() => {
           audioManager.stopAll();
-          audioManager.playSound('/audio/wudu/game_selesai.mp3');
+          audioManager.playSound('/audio/game_selesai.mp3');
           toast.success('Sempurna! Kamu menguasai urutan wudu!', { icon: '🌟', duration: 3000 });
           setTimeout(onComplete, 4000);
         }, 2000);
       }
     } else {
-      audioManager.playSound('/audio/wudu/salah.mp3');
+      audioManager.playSound('/audio/salah.mp3');
       toast('Ups! Coba ingat-ingat lagi urutannya ya', { icon: '🤔', duration: 2000 });
     }
   };

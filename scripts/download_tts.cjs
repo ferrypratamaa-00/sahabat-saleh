@@ -2,7 +2,7 @@ const fs = require('fs');
 const https = require('https');
 const path = require('path');
 
-const OUTPUT_DIR = path.join(__dirname, '../public/audio/wudu');
+const OUTPUT_DIR = path.join(__dirname, '../public/audio');
 
 // Ensure directory exists
 if (!fs.existsSync(OUTPUT_DIR)) {

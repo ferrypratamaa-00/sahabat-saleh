@@ -5,16 +5,16 @@ import AudioManager from '../utils/AudioManager';
 import toast from 'react-hot-toast';
 
 const letters = [
-  { arabic: 'ا', name: 'ALIF', sound: 'Alif', audio: '/audio/wudu/huruf_alif.mp3' },
-  { arabic: 'ب', name: 'BA', sound: 'Ba', audio: '/audio/wudu/huruf_ba.mp3' },
-  { arabic: 'ت', name: 'TA', sound: 'Ta', audio: '/audio/wudu/huruf_ta.mp3' },
-  { arabic: 'ث', name: 'TSA', sound: 'Tsa', audio: '/audio/wudu/huruf_tsa.mp3' },
-  { arabic: 'ج', name: 'JIM', sound: 'Jim', audio: '/audio/wudu/huruf_jim.mp3' },
-  { arabic: 'ح', name: 'HA', sound: 'Ha', audio: '/audio/wudu/huruf_ha.mp3' },
-  { arabic: 'خ', name: 'KHA', sound: 'Kha', audio: '/audio/wudu/huruf_kha.mp3' },
-  { arabic: 'د', name: 'DAL', sound: 'Dal', audio: '/audio/wudu/huruf_dal.mp3' },
-  { arabic: 'ذ', name: 'DZAL', sound: 'Dzal', audio: '/audio/wudu/huruf_dzal.mp3' },
-  { arabic: 'ر', name: 'RA', sound: 'Ra', audio: '/audio/wudu/huruf_ra.mp3' },
+  { arabic: 'ا', name: 'ALIF', sound: 'Alif', audio: '/audio/huruf_alif.mp3' },
+  { arabic: 'ب', name: 'BA', sound: 'Ba', audio: '/audio/huruf_ba.mp3' },
+  { arabic: 'ت', name: 'TA', sound: 'Ta', audio: '/audio/huruf_ta.mp3' },
+  { arabic: 'ث', name: 'TSA', sound: 'Tsa', audio: '/audio/huruf_tsa.mp3' },
+  { arabic: 'ج', name: 'JIM', sound: 'Jim', audio: '/audio/huruf_jim.mp3' },
+  { arabic: 'ح', name: 'HA', sound: 'Ha', audio: '/audio/huruf_ha.mp3' },
+  { arabic: 'خ', name: 'KHA', sound: 'Kha', audio: '/audio/huruf_kha.mp3' },
+  { arabic: 'د', name: 'DAL', sound: 'Dal', audio: '/audio/huruf_dal.mp3' },
+  { arabic: 'ذ', name: 'DZAL', sound: 'Dzal', audio: '/audio/huruf_dzal.mp3' },
+  { arabic: 'ر', name: 'RA', sound: 'Ra', audio: '/audio/huruf_ra.mp3' },
 ];
 
 interface Game2Props {
@@ -41,7 +41,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
       setTimeout(() => {
         // "Cari huruf..." + [Huruf]
         audioManager.stopAll();
-        audioManager.playInstruction('/audio/wudu/cari_huruf.mp3');
+        audioManager.playInstruction('/audio/cari_huruf.mp3');
         setTimeout(() => {
           audioManager.playSound(targetLetter.audio);
         }, 1000);
@@ -70,7 +70,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
     audioManager.stopAll();
 
     if (letter.arabic === targetLetter.arabic) {
-      audioManager.playSound('/audio/wudu/benar.mp3'); // Or specific "Benar, ini huruf..."
+      audioManager.playSound('/audio/benar.mp3'); // Or specific "Benar, ini huruf..."
       // Optionally play specific feedback: "MasyaAllah! Benar, ini huruf [Nama]" 
       // But we just use generic generic positive + letter name for simplicity or just "Benar"
       
@@ -87,13 +87,13 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
         if (round + 1 < totalRounds) {
           setRound(round + 1);
         } else {
-          audioManager.playSound('/audio/wudu/game2_selesai.mp3');
+          audioManager.playSound('/audio/game2_selesai.mp3');
           toast.success('Hebat! Kamu menyelesaikan semua level!', { icon: '🏆', duration: 3000 });
           setTimeout(onComplete, 3000);
         }
       }, 2000);
     } else {
-      audioManager.playSound('/audio/wudu/coba_dengarkan_lagi.mp3');
+      audioManager.playSound('/audio/coba_dengarkan_lagi.mp3');
       toast('Belum tepat, coba lagi! 🎧', { icon: '🤔', duration: 1500 });
     }
   };
@@ -149,7 +149,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
               Dengarkan dan cari huruf:
             </p>
             
-            <motion.div
+            {/* <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={playLetterSound}
@@ -165,7 +165,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
               }}
             >
               {showResult ? '✨' : targetLetter.arabic}
-            </motion.div>
+            </motion.div> */}
 
             <motion.button
               onClick={playLetterSound}

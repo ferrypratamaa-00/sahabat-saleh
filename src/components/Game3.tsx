@@ -25,10 +25,10 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     // Initialize game with random recipients
     const numRecipients = Math.floor(Math.random() * 2) + 2; // 2-3 recipients
     const allRecipients = [
-      { name: 'Adik Kecil', emoji: '👶', image: '/images/game3/recipient_baby.png', message: 'Terima kasih kakak!', audio: '/audio/wudu/terima_kasih_kakak.mp3' },
-      { name: 'Teman', emoji: '👧', image: '/images/game3/recipient_friend.png', message: 'Barakallah!', audio: '/audio/wudu/barakallah.mp3' },
-      { name: 'Nenek', emoji: '👵', image: '/images/game3/recipient_grandma.png', message: 'MasyaAllah!', audio: '/audio/wudu/masyaallah.mp3' },
-      { name: 'Kucing', emoji: '🐱', image: '/images/game3/recipient_cat.png', message: 'Meow~', audio: '/audio/wudu/meow.mp3' },
+      { name: 'Adik Kecil', emoji: '👶', image: '/images/game3/recipient_baby.png', message: 'Terima kasih kakak!', audio: '/audio/terima_kasih_kakak.mp3' },
+      { name: 'Teman', emoji: '👧', image: '/images/game3/recipient_friend.png', message: 'Barakallah!', audio: '/audio/barakallah.mp3' },
+      { name: 'Nenek', emoji: '👵', image: '/images/game3/recipient_grandma.png', message: 'MasyaAllah!', audio: '/audio/masyaallah.mp3' },
+      { name: 'Kucing', emoji: '🐱', image: '/images/game3/recipient_cat.png', message: 'Meow~', audio: '/audio/meow.mp3' },
     ];
 
     return allRecipients
@@ -58,7 +58,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
   const basketRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    audioManager.playInstruction('/audio/wudu/ayo_berbagi.mp3');
+    audioManager.playInstruction('/audio/ayo_berbagi.mp3');
   }, []);
 
   const handleDragStart = (appleId: string) => {
@@ -71,7 +71,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
 
     const recipient = recipients.find(r => r.id === recipientId);
     if (!recipient || recipient.received >= recipient.need) {
-      audioManager.playSound('/audio/wudu/sudah_cukup.mp3');
+      audioManager.playSound('/audio/sudah_cukup.mp3');
       toast.error('Sudah cukup ya!', { icon: '😊' });
       setDraggedApple(null);
       return;
@@ -87,7 +87,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     setRecipients(newRecipients);
 
     audioManager.playCorrect();
-    // audioManager.playSound('/audio/wudu/nambah_apel.mp3'); // Optional effect if we had a coin sound
+    // audioManager.playSound('/audio/nambah_apel.mp3'); // Optional effect if we had a coin sound
 
     const updatedRecipient = newRecipients.find(r => r.id === recipientId);
     if (updatedRecipient && updatedRecipient.received === updatedRecipient.need) {
@@ -105,7 +105,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
       setTimeout(() => {
         setIsComplete(true);
         audioManager.stopAll();
-        audioManager.playSound('/audio/wudu/masyaallah_berbagi.mp3');
+        audioManager.playSound('/audio/masyaallah_berbagi.mp3');
         toast.success('Sempurna! Berbagi itu indah! 🎉', { duration: 3000 });
         setTimeout(onComplete, 4000);
       }, 1000);

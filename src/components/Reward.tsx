@@ -47,7 +47,7 @@ const Reward: React.FC<RewardProps> = memo(({ onPlayAgain }) => {
     // Play success sound
     audioManager.playCorrect();
     setTimeout(() => {
-      audioManager.playSound('/audio/wudu/reward_success.mp3');
+      audioManager.playSound('/audio/reward_success.mp3');
     }, 500);
 
     // Show stars one by one
