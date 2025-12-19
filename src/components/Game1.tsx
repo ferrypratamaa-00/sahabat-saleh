@@ -1,8 +1,9 @@
 import React, { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Droplet, Hand, Smile, Wind, Sparkles, ArrowLeft } from 'lucide-react';
+import { Droplet, Hand, Smile, Wind, Sparkles, ArrowLeft, CheckCircle, ArrowRight } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
-import toast from 'react-hot-toast';
+import FeedbackModal from './FeedbackModal';
+// import toast from 'react-hot-toast';
 
 const steps = [
   { name: 'Niat', emoji: '🤲', image: '/images/game1/wudu_niat.png', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/niat_wudu.mp3' },
@@ -23,6 +24,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
   const [shuffledSteps, setShuffledSteps] = useState<typeof steps>([]);
   const [userSequence, setUserSequence] = useState<number[]>([]);
   const [gameMode, setGameMode] = useState<'learn' | 'test'>('learn');
+  const [feedback, setFeedback] = useState<{isOpen: boolean, type: 'success' | 'error', title: string, message: string} | null>(null);
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
@@ -42,14 +44,19 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      toast.success('Kamu sudah belajar semua langkah wudu! Sekarang coba urutkan!', {
-        duration: 3000,
-        icon: '🎉'
+      setFeedback({
+        isOpen: true,
+        type: 'success',
+        title: 'Hebat!',
+        message: 'Kamu sudah belajar semua langkah wudu! Sekarang coba urutkan!'
       });
-      setTimeout(() => {
-        setGameMode('test');
-        setCurrentStep(0);
-      }, 2000);
+      // toast.success('Kamu sudah belajar semua langkah wudu! Sekarang coba urutkan!', {
+      //   duration: 3000,
+      //   icon: '🎉'
+      // });
+      // setTimeout(() => {
+         // Moved to Feedback Close
+      // }, 2000);
     }
   };
 
@@ -64,11 +71,13 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
       // Play "Benar" then the step sound
       audioManager.playSound('/audio/benar.mp3');
       
-      setTimeout(() => {
-        audioManager.playSound(clickedStep.audio);
-      }, 1000); 
-
-      toast.success('MasyaAllah! Benar!', { icon: '✅', duration: 1500 });
+      audioManager.playSound(clickedStep.audio); // Play desc
+      
+      // toast.success('MasyaAllah! Benar!', { icon: '✅', duration: 1500 });
+      // Too frequent for modal? Maybe keep toast for small steps or simple visual queue? 
+      // User asked for modal on error/success. Let's use modal for BIG success (completion) and Errors.
+      // Small success can stay subtle or use micro-interaction. 
+      // User said "silang besar ditengah", implies Modal for Error.
       
       const newSequence = [...userSequence, index];
       setUserSequence(newSequence);
@@ -77,14 +86,34 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
         setTimeout(() => {
           audioManager.stopAll();
           audioManager.playSound('/audio/game_selesai.mp3');
-          toast.success('Sempurna! Kamu menguasai urutan wudu!', { icon: '🌟', duration: 3000 });
-          setTimeout(onComplete, 4000);
+          setFeedback({
+            isOpen: true,
+            type: 'success',
+            title: 'Sempurna!',
+            message: 'Kamu menguasai urutan wudu!'
+          });
         }, 2000);
       }
     } else {
       audioManager.playSound('/audio/salah.mp3');
-      toast('Ups! Coba ingat-ingat lagi urutannya ya', { icon: '🤔', duration: 2000 });
+      setFeedback({
+        isOpen: true,
+        type: 'error',
+        title: 'Ups!',
+        message: 'Coba ingat-ingat lagi urutannya ya!'
+      });
     }
+  };
+
+  const closeFeedback = () => {
+      setFeedback(null);
+      // Logic after feedback closes
+      if (gameMode === 'learn' && currentStep >= steps.length - 1) {
+          setGameMode('test');
+          setCurrentStep(0);
+      } else if (feedback?.title === 'Sempurna!') {
+          onComplete();
+      }
   };
 
   if (gameMode === 'learn') {
@@ -138,7 +167,15 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             whileTap={{ scale: 0.95 }}
             style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)' }}
           >
-            {currentStep < steps.length - 1 ? 'Lanjut ➡️' : 'Selesai Belajar! 🎯'}
+            {currentStep < steps.length - 1 ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                Lanjut <ArrowRight size={20} />
+              </span>
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                Selesai Belajar! <CheckCircle size={20} />
+              </span>
+            )}
           </motion.button>
         </motion.div>
       </div>
@@ -202,13 +239,25 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
                   {step.name}
                 </h4>
                 {isCompleted && (
-                  <div style={{ fontSize: '2rem' }}>✅</div>
+                  <div style={{ marginTop: '0.5rem', color: 'var(--success)' }}>
+                    <CheckCircle size={32} fill="white" />
+                  </div>
                 )}
               </motion.div>
             );
           })}
         </div>
       </motion.div>
+      
+      {feedback && (
+          <FeedbackModal
+            isOpen={feedback.isOpen}
+            type={feedback.type}
+            title={feedback.title}
+            message={feedback.message}
+            onClose={closeFeedback}
+          />
+      )}
     </div>
   );
 });

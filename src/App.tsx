@@ -12,7 +12,7 @@ import Settings from './components/Settings';
 import Theme from './components/Theme';
 import AudioManager from './utils/AudioManager';
 import { Toaster } from 'react-hot-toast';
-import { Volume2 } from 'lucide-react';
+import { Volume } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 type Page = 'opening' | 'menu' | 'game1' | 'game2' | 'game3' | 'game4' | 'game5' | 'reward' | 'settings' | 'theme';
@@ -97,7 +97,7 @@ function App() {
       {/* Global Replay Instruction Button (Except Opening) */}
       {currentPage !== 'opening' && (
         <motion.button
-          className="btn-global-replay"
+          // className="btn-global-replay"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           onClick={() => audioManager.replayInstruction()}
@@ -120,7 +120,7 @@ function App() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <Volume2 size={24} color="var(--primary)" />
+          <Volume size={24} stroke="var(--primary)" />
         </motion.button>
       )}
 

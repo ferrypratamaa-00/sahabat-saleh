@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ArrowLeft, Sparkles } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
-import toast from 'react-hot-toast';
+import FeedbackModal from './FeedbackModal';
+// import toast from 'react-hot-toast';
 
 interface Recipient {
   id: string;
@@ -54,6 +55,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
 
   const [draggedApple, setDraggedApple] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  const [feedback, setFeedback] = useState<{isOpen: boolean, type: 'success' | 'error' | 'info', title: string, message: string} | null>(null);
   const audioManager = AudioManager.getInstance();
   const basketRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +74,13 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     const recipient = recipients.find(r => r.id === recipientId);
     if (!recipient || recipient.received >= recipient.need) {
       audioManager.playSound('/audio/sudah_cukup.mp3');
-      toast.error('Sudah cukup ya!', { icon: '😊' });
+      // toast.error('Sudah cukup ya!', { icon: '😊' });
+      setFeedback({
+          isOpen: true,
+          type: 'info', // Or Keep it subtle? User asked for big X for wrong. This is "Info".
+          title: 'Sudah Cukup',
+          message: 'Dia sudah punya cukup apel! 😊'
+      });
       setDraggedApple(null);
       return;
     }
@@ -91,10 +99,10 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
 
     const updatedRecipient = newRecipients.find(r => r.id === recipientId);
     if (updatedRecipient && updatedRecipient.received === updatedRecipient.need) {
-      toast.success(updatedRecipient.message, { 
-        icon: updatedRecipient.emoji,
-        duration: 2000 
-      });
+      // toast.success(updatedRecipient.message, { 
+      //   icon: updatedRecipient.emoji,
+      //   duration: 2000 
+      // });
       // Play specific thank you audio
       audioManager.stopAll();
       audioManager.playSound(updatedRecipient.audio);
@@ -106,8 +114,13 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
         setIsComplete(true);
         audioManager.stopAll();
         audioManager.playSound('/audio/masyaallah_berbagi.mp3');
-        toast.success('Sempurna! Berbagi itu indah! 🎉', { duration: 3000 });
-        setTimeout(onComplete, 4000);
+        // toast.success('Sempurna! Berbagi itu indah! 🎉', { duration: 3000 });
+        setFeedback({
+            isOpen: true,
+            type: 'success',
+            title: 'Sempurna!',
+            message: 'Berbagi itu indah! 🎉'
+        });
       }, 1000);
     }
 
@@ -238,6 +251,21 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
           </motion.div>
         )}
       </motion.div>
+
+       {feedback && (
+          <FeedbackModal
+            isOpen={feedback.isOpen}
+            type={feedback.type}
+            title={feedback.title}
+            message={feedback.message}
+            onClose={() => {
+                setFeedback(null);
+                if (feedback.title === 'Sempurna!') {
+                    onComplete();
+                }
+            }}
+          />
+      )}
     </div>
   );
 });

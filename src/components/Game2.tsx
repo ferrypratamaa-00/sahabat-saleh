@@ -2,7 +2,8 @@ import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, ArrowLeft } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
-import toast from 'react-hot-toast';
+import FeedbackModal from './FeedbackModal';
+// import toast from 'react-hot-toast';
 
 const letters = [
   { arabic: 'ا', name: 'ALIF', sound: 'Alif', audio: '/audio/huruf_alif.mp3' },
@@ -28,6 +29,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
   const [score, setScore] = useState(0);
   const [round, setRound] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [feedback, setFeedback] = useState<{isOpen: boolean, type: 'success' | 'error', title: string, message: string} | null>(null);
   const audioManager = AudioManager.getInstance();
   const totalRounds = 5;
 
@@ -70,15 +72,13 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
     audioManager.stopAll();
 
     if (letter.arabic === targetLetter.arabic) {
-      audioManager.playSound('/audio/benar.mp3'); // Or specific "Benar, ini huruf..."
-      // Optionally play specific feedback: "MasyaAllah! Benar, ini huruf [Nama]" 
-      // But we just use generic generic positive + letter name for simplicity or just "Benar"
+      audioManager.playSound('/audio/benar.mp3'); 
       
       setTimeout(() => {
          audioManager.playSound(letter.audio);
       }, 1000);
 
-      toast.success(`Benar! Huruf ${letter.name}`, { icon: '✨', duration: 2000 });
+      // toast.success(`Benar! Huruf ${letter.name}`, { icon: '✨', duration: 2000 });
       setScore(score + 1);
       setShowResult(true);
 
@@ -88,14 +88,31 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
           setRound(round + 1);
         } else {
           audioManager.playSound('/audio/game2_selesai.mp3');
-          toast.success('Hebat! Kamu menyelesaikan semua level!', { icon: '🏆', duration: 3000 });
-          setTimeout(onComplete, 3000);
+          setFeedback({
+              isOpen: true,
+              type: 'success',
+              title: 'Hebat!',
+              message: 'Kamu menyelesaikan semua level!'
+          });
         }
       }, 2000);
     } else {
       audioManager.playSound('/audio/coba_dengarkan_lagi.mp3');
-      toast('Belum tepat, coba lagi! 🎧', { icon: '🤔', duration: 1500 });
+      setFeedback({
+          isOpen: true,
+          type: 'error',
+          title: 'Belum Tepat',
+          message: 'Coba dengarkan lagi ya! 🎧'
+      });
+      // toast('Belum tepat, coba lagi! 🎧', { icon: '🤔', duration: 1500 });
     }
+  };
+
+  const closeFeedback = () => {
+      setFeedback(null);
+      if (feedback?.title === 'Hebat!') {
+          onComplete();
+      }
   };
 
   return (
@@ -225,6 +242,17 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
           </motion.div>
         )}
       </motion.div>
+      
+      {feedback && (
+          <FeedbackModal
+            isOpen={feedback.isOpen}
+            type={feedback.type}
+            title={feedback.title}
+            message={feedback.message}
+            onClose={closeFeedback}
+            autoCloseDelay={feedback.type === 'error' ? 2000 : undefined} 
+          />
+      )}
     </div>
   );
 });

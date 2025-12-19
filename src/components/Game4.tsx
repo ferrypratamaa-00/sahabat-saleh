@@ -2,7 +2,8 @@ import React, { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles, CheckCircle } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
-import toast from 'react-hot-toast';
+import FeedbackModal from './FeedbackModal';
+// import toast from 'react-hot-toast';
 
 interface ClothingItem {
   id: string;
@@ -40,6 +41,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
+  const [feedback, setFeedback] = useState<{isOpen: boolean, type: 'success' | 'error', title: string, message: string} | null>(null);
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
@@ -63,7 +65,12 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
   const handleSubmit = () => {
     if (selectedItems.length === 0) {
       audioManager.playSound('/audio/pilih_pakaian_dulu.mp3');
-      toast.error('Pilih pakaian dulu ya!', { icon: '👕' });
+      setFeedback({
+          isOpen: true,
+          type: 'error',
+          title: 'Belum Memilih',
+          message: 'Pilih pakaian dulu ya!'
+      });
       return;
     }
 
@@ -82,9 +89,11 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
 
     if (wrongSelected.length > 0) {
       audioManager.playSound('/audio/kurang_tepat.mp3');
-      toast.error('Ada yang kurang tepat. Coba lagi ya!', { 
-        icon: '😊',
-        duration: 2000 
+      setFeedback({
+          isOpen: true,
+          type: 'error',
+          title: 'Kurang Tepat',
+          message: 'Ada yang kurang tepat. Coba lagi ya!'
       });
       
       setTimeout(() => {
@@ -97,18 +106,33 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
          audioManager.playSound('/audio/pilihan_sempurna.mp3');
       }, 500);
       
-      toast.success('Sempurna! Pakaianmu sangat sopan! 🎉', { duration: 3000 });
+      // toast.success('Sempurna! Pakaianmu sangat sopan! 🎉', { duration: 3000 });
+      setFeedback({
+          isOpen: true,
+          type: 'success',
+          title: 'Sempurna!',
+          message: 'Pakaianmu sangat sopan! 🎉'
+      });
       
-      setTimeout(() => {
-        onComplete();
-      }, 4000);
+      // setTimeout(() => {
+      //   onComplete();
+      // }, 4000);
     } else {
       audioManager.playSound('/audio/pilih_lebih_banyak.mp3');
-      toast('Bagus! Pilih lebih banyak lagi ya! 😊', { 
-        icon: '👍',
-        duration: 2000 
+      setFeedback({
+          isOpen: true,
+          type: 'error', 
+          title: 'Ayo Tambah',
+          message: 'Pilih lebih banyak laki lagi ya! 😊'
       });
       setShowResult(false);
+    }
+  };
+
+  const closeFeedback = () => {
+    setFeedback(null);
+    if (feedback?.title === 'Sempurna!') {
+        onComplete();
     }
   };
 
@@ -194,6 +218,16 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
           </motion.button>
         )}
       </motion.div>
+      {feedback && (
+          <FeedbackModal
+            isOpen={feedback.isOpen}
+            type={feedback.type}
+            title={feedback.title}
+            message={feedback.message}
+            onClose={closeFeedback}
+            autoCloseDelay={feedback.type === 'error' ? 2500 : undefined}
+          />
+      )}
     </div>
   );
 });

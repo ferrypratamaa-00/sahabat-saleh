@@ -2,7 +2,8 @@ import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, RotateCcw } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
-import toast from 'react-hot-toast';
+import FeedbackModal from './FeedbackModal';
+// import toast from 'react-hot-toast';
 
 interface Movement {
   id: string;
@@ -32,6 +33,7 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
   });
   const [sequence, setSequence] = useState<Movement[]>([]);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{isOpen: boolean, type: 'success' | 'error', title: string, message: string} | null>(null);
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
@@ -78,13 +80,18 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
     setAvailableMovements([...correctMovements].sort(() => Math.random() - 0.5));
     setSequence([]);
     audioManager.playClick();
-    toast('Ayo coba lagi!', { icon: '🔄' });
+    // toast('Ayo coba lagi!', { icon: '🔄' });
   };
 
   const handleCheck = () => {
     if (sequence.length !== correctMovements.length) {
       audioManager.playSound('/audio/belum_lengkap.mp3');
-      toast.error('Belum lengkap! Susun semua gerakan ya!', { icon: '📝' });
+      setFeedback({
+          isOpen: true,
+          type: 'error',
+          title: 'Belum Lengkap',
+          message: 'Susun semua gerakan ya!'
+      });
       return;
     }
 
@@ -97,15 +104,34 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
         audioManager.playSound('/audio/urutan_benar.mp3');
       }, 500);
 
-      toast.success('MasyaAllah! Sempurna! 🎉', { duration: 3000 });
-      setTimeout(onComplete, 4000);
+      // toast.success('MasyaAllah! Sempurna! 🎉', { duration: 3000 });
+      setFeedback({
+          isOpen: true,
+          type: 'success',
+          title: 'Sempurna!',
+          message: 'Urutan salatmu benar! 🎉'
+      });
+      // setTimeout(onComplete, 4000);
     } else {
       audioManager.playSound('/audio/urutan_salah.mp3');
-      toast.error('Urutannya belum tepat. Coba lagi ya! 😊', { duration: 2000 });
+      setFeedback({
+          isOpen: true,
+          type: 'error',
+          title: 'Belum Tepat',
+          message: 'Urutannya belum tepat. Coba lagi ya! 😊'
+      });
+      // toast.error('Urutannya belum tepat. Coba lagi ya! 😊', { duration: 2000 });
       
       setTimeout(() => {
         handleReset();
       }, 2000);
+    }
+  };
+
+  const closeFeedback = () => {
+    setFeedback(null);
+    if (feedback?.title === 'Sempurna!') {
+        onComplete();
     }
   };
 
@@ -234,6 +260,17 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
           )}
         </div>
       </motion.div>
+
+      {feedback && (
+          <FeedbackModal
+            isOpen={feedback.isOpen}
+            type={feedback.type}
+            title={feedback.title}
+            message={feedback.message}
+            onClose={closeFeedback}
+            autoCloseDelay={feedback.type === 'error' ? 2000 : undefined}
+          />
+      )}
     </div>
   );
 });
