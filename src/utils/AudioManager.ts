@@ -83,6 +83,8 @@ class AudioManager {
     this.playTone(300, 'triangle', 0.2, 0.1);
   }
 
+  private activeSources: Set<AudioBufferSourceNode> = new Set();
+
   // Stop semua audio dan speech
   stopAll(): void {
     // Stop speech synthesis
@@ -90,14 +92,23 @@ class AudioManager {
       speechSynthesis.cancel();
     }
 
-    // Stop semua audio elements
+    // Stop Web Audio sources
+    this.activeSources.forEach(source => {
+      try {
+        source.stop();
+        source.disconnect();
+      } catch (e) {
+        // Ignore if already stopped
+      }
+    });
+    this.activeSources.clear();
+
+    // Stop semua audio elements (Legacy/Backup)
     this.audioElements.forEach(audio => {
       audio.pause();
       audio.currentTime = 0;
     });
     this.audioElements = [];
-    
-    // Suspend context if playing nothing (optional optimization)
   }
 
   // Play text-to-speech
@@ -205,41 +216,78 @@ class AudioManager {
     this.voiceStyle = style;
   }
 
-  // Play audio file
-  playSound(src: string, volume: number = 1): void {
+  private bufferCache: Map<string, AudioBuffer> = new Map();
+  private lastInstruction: string | null = null;
+  private currentSource: AudioBufferSourceNode | null = null;
+
+  // Play instruction and track it for replay
+  playInstruction(src: string): void {
+    this.lastInstruction = src;
+    this.playSound(src);
+  }
+
+  replayInstruction(): void {
+    if (this.lastInstruction) {
+      this.playSound(this.lastInstruction);
+    }
+  }
+
+  // Play audio file using Web Audio API (more robust than HTMLAudioElement)
+  async playSound(src: string, volume: number = 1): Promise<void> {
     if (!this.isEnabled) return;
 
     try {
-      const audio = new Audio(src);
-      audio.volume = volume;
+      const ctx = this.getContext();
+      if (!ctx) return;
 
-      // Apply chipmunk effect if enabled
-      if (this.voiceStyle === 'chipmunk') {
-        const rate = 1.3; // Lebih kartun lagi (sedikit di bawah 1.35)
-        audio.playbackRate = rate;
-        
-        // Critically, we MUST disable pitch preservation to get the "chipmunk" effect (high pitch)
-        // when speeding up. If preservesPitch is true (default), it just speaks faster but same pitch.
-        if ('preservesPitch' in audio) {
-          (audio as unknown as { preservesPitch: boolean }).preservesPitch = false;
-        } else if ('mozPreservesPitch' in audio) {
-          (audio as unknown as { mozPreservesPitch: boolean }).mozPreservesPitch = false;
-        } else if ('webkitPreservesPitch' in audio) {
-          (audio as unknown as { webkitPreservesPitch: boolean }).webkitPreservesPitch = false;
+      // Stop previous instruction source if any (monophonic instructions? or logic depends)
+      // For SFX (game feedback), we might want polyphony. For instructions, overlap is bad.
+      // Let's keep it simple: fire and forget for SFX, but maybe track main voice?
+      // Existing logic used HTMLAudioElement with no overlap control except manual stopAll.
+
+      // Check cache first
+      let buffer = this.bufferCache.get(src);
+
+      if (!buffer) {
+        try {
+          const response = await fetch(src);
+          const arrayBuffer = await response.arrayBuffer();
+          buffer = await ctx.decodeAudioData(arrayBuffer);
+          this.bufferCache.set(src, buffer);
+        } catch (e) {
+          console.warn('Failed to load audio:', src, e);
+          return;
         }
       }
 
-      audio.onended = () => {
-        this.audioElements = this.audioElements.filter(a => a !== audio);
-      };
-      audio.onerror = () => {
-        this.audioElements = this.audioElements.filter(a => a !== audio);
-      };
+      if (!buffer) return;
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
       
-      this.audioElements.push(audio);
-      audio.play().catch(() => {});
-    } catch {
-      // Ignore
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = volume;
+
+      // Apply pitch shift (Cartoon/Chipmunk)
+      if (this.voiceStyle === 'chipmunk') {
+        const rate = 1.3; 
+        source.playbackRate.value = rate;
+         // Web Audio handles pitch/rate together naturally (resampling).
+         // So rate 1.3 = higher pitch automatically (correct chipmunk effect).
+      }
+
+      source.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      source.start(0);
+      this.activeSources.add(source);
+
+      // Cleanup when done
+      source.onended = () => {
+        this.activeSources.delete(source);
+      };
+    } catch (e) {
+      console.warn('Playback failed:', e);
     }
   }
 

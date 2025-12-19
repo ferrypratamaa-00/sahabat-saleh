@@ -43,7 +43,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
-    audioManager.playSound('/audio/wudu/pilih_pakaian.mp3');
+    audioManager.playInstruction('/audio/wudu/pilih_pakaian.mp3');
   }, []);
 
   const handleSelectClothing = (item: ClothingItem) => {

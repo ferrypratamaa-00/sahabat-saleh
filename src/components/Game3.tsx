@@ -58,7 +58,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
   const basketRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    audioManager.playSound('/audio/wudu/ayo_berbagi.mp3');
+    audioManager.playInstruction('/audio/wudu/ayo_berbagi.mp3');
   }, []);
 
   const handleDragStart = (appleId: string) => {

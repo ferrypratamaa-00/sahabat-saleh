@@ -35,7 +35,7 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
-    audioManager.playSound('/audio/wudu/susun_gerakan.mp3');
+    audioManager.playInstruction('/audio/wudu/susun_gerakan.mp3');
   }, []);
 
   const handleDragStart = (movementId: string) => {

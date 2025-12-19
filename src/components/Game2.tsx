@@ -41,7 +41,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
       setTimeout(() => {
         // "Cari huruf..." + [Huruf]
         audioManager.stopAll();
-        audioManager.playSound('/audio/wudu/cari_huruf.mp3');
+        audioManager.playInstruction('/audio/wudu/cari_huruf.mp3');
         setTimeout(() => {
           audioManager.playSound(targetLetter.audio);
         }, 1000);

@@ -34,7 +34,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
   useEffect(() => {
     if (gameMode === 'learn' && currentStep < steps.length) {
       audioManager.stopAll();
-      audioManager.playSound(steps[currentStep].audio);
+      audioManager.playInstruction(steps[currentStep].audio);
     }
   }, [currentStep, gameMode]);
 

@@ -13,6 +13,8 @@ import Theme from './components/Theme';
 import AudioManager from './utils/AudioManager';
 import { Toaster } from 'react-hot-toast';
 import BackgroundDecorations from './components/BackgroundDecorations';
+import { Volume2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 type Page = 'opening' | 'menu' | 'game1' | 'game2' | 'game3' | 'game4' | 'game5' | 'reward' | 'settings' | 'theme';
 
@@ -92,6 +94,37 @@ function App() {
   return (
     <div className="app">
       <BackgroundDecorations />
+      
+      {/* Global Replay Instruction Button (Except Opening) */}
+      {currentPage !== 'opening' && (
+        <motion.button
+          className="btn-global-replay"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          onClick={() => audioManager.replayInstruction()}
+          style={{
+            position: 'fixed',
+            top: 'clamp(1rem, 3vw, 1.5rem)',
+            right: 'clamp(1rem, 3vw, 1.5rem)',
+            background: 'white',
+            border: '2px solid var(--primary)',
+            borderRadius: '50%',
+            width: 'clamp(2.5rem, 5vw, 3rem)',
+            height: 'clamp(2.5rem, 5vw, 3rem)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            zIndex: 1000
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Volume2 size={24} color="var(--primary)" />
+        </motion.button>
+      )}
+
       <Toaster position="top-center" />
       {renderPage()}
     </div>
