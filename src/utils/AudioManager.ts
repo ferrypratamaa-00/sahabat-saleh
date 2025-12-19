@@ -98,15 +98,17 @@ class AudioManager {
     }
 
     // Stop Web Audio sources
-    this.activeSources.forEach(source => {
-      try {
-        source.stop();
-        source.disconnect();
-      } catch (e) {
-        // Ignore if already stopped
-      }
-    });
-    this.activeSources.clear();
+    if (this.activeSources) {
+      this.activeSources.forEach(source => {
+        try {
+          source.stop();
+          source.disconnect();
+        } catch (e) {
+          // Ignore if already stopped
+        }
+      });
+      this.activeSources.clear();
+    }
 
     // Stop semua audio elements (Legacy/Backup)
     this.audioElements.forEach(audio => {

@@ -93,7 +93,7 @@ function App() {
 
   return (
     <div className="app">
-      <BackgroundDecorations />
+      {/* <BackgroundDecorations /> - Temporarily disabled for debugging */}
       
       {/* Global Replay Instruction Button (Except Opening) */}
       {currentPage !== 'opening' && (
