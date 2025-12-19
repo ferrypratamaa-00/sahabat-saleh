@@ -106,12 +106,16 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
   };
 
   const closeFeedback = () => {
+      const mode = gameMode;
+      const isLearnComplete = mode === 'learn' && currentStep >= steps.length - 1;
+      const title = feedback?.title;
+
       setFeedback(null);
-      // Logic after feedback closes
-      if (gameMode === 'learn' && currentStep >= steps.length - 1) {
+
+      if (isLearnComplete) {
           setGameMode('test');
           setCurrentStep(0);
-      } else if (feedback?.title === 'Sempurna!') {
+      } else if (title === 'Sempurna!') {
           onComplete();
       }
   };

@@ -109,8 +109,9 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
   };
 
   const closeFeedback = () => {
+      const title = feedback?.title;
       setFeedback(null);
-      if (feedback?.title === 'Hebat!') {
+      if (title === 'Hebat!') {
           onComplete();
       }
   };
