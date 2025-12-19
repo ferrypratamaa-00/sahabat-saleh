@@ -168,15 +168,31 @@ class AudioManager {
     });
   }
 
+  private currentUtterance: SpeechSynthesisUtterance | null = null;
+
   private speakFallback(text: string, lang: string): void {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
     try {
+      // Cancel previous
+      speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(text);
+      this.currentUtterance = utterance; // Keep reference to prevent GC
+
       utterance.lang = lang;
       utterance.rate = 1.1;
       utterance.pitch = 1.5; // Higher pitch for cartoon/chipmunk effect
       
+      utterance.onend = () => {
+        this.currentUtterance = null;
+      };
+
+      utterance.onerror = (e) => {
+        console.warn('Speech synthesis error:', e);
+        this.currentUtterance = null;
+      };
+
       speechSynthesis.speak(utterance);
     } catch (error) {
       console.warn('Speech synthesis failed:', error);

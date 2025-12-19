@@ -1,6 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Settings, 
+import { Play, Settings, Volume2 
   // Palette 
 } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -142,6 +142,35 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings,
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
+          {/* Replay Audio Button (helpful if auto-play blocked) */}
+          <motion.button
+             className="btn-replay-audio"
+             initial={{ scale: 0 }}
+             animate={{ scale: 1 }}
+             transition={{ delay: 1 }}
+             onClick={() => audioManager.speak("Selamat datang di Petualangan Sahabat Saleh")}
+             style={{
+               position: 'absolute',
+               top: '1rem',
+               right: '1rem',
+               background: 'rgba(255, 255, 255, 0.8)',
+               border: 'none',
+               borderRadius: '50%',
+               width: '3rem',
+               height: '3rem',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center',
+               cursor: 'pointer',
+               boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+               zIndex: 50
+             }}
+             whileHover={{ scale: 1.1 }}
+             whileTap={{ scale: 0.9 }}
+          >
+             <Volume2 size={24} color="var(--primary)" />
+          </motion.button>
+
           <motion.button
             className="btn-start"
             onClick={handleStart}
