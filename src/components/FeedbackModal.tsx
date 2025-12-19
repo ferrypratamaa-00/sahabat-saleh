@@ -28,20 +28,24 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
       const colors = ['#a786ff', '#fd8bbc', '#eca184', '#f8deb1'];
 
       (function frame() {
-        confetti({
-          particleCount: 2,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: colors
-        });
-        confetti({
-          particleCount: 2,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: colors
-        });
+        try {
+          confetti({
+            particleCount: 2,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: colors
+          });
+          confetti({
+            particleCount: 2,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: colors
+          });
+        } catch (e) {
+          console.error("Confetti error:", e);
+        }
 
         if (Date.now() < end) {
           requestAnimationFrame(frame);
