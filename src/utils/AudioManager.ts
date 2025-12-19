@@ -91,6 +91,11 @@ class AudioManager {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       speechSynthesis.cancel();
     }
+    
+    // Clear current utterance reference to fix lint "never read" and ensure cleanup
+    if (this.currentUtterance) {
+      this.currentUtterance = null;
+    }
 
     // Stop Web Audio sources
     this.activeSources.forEach(source => {
@@ -218,7 +223,7 @@ class AudioManager {
 
   private bufferCache: Map<string, AudioBuffer> = new Map();
   private lastInstruction: string | null = null;
-  private currentSource: AudioBufferSourceNode | null = null;
+  // currentSource removed as it was unused (replaced by activeSources Set)
 
   // Play instruction and track it for replay
   playInstruction(src: string): void {
