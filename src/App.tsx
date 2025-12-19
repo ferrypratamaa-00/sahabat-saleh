@@ -12,7 +12,6 @@ import Settings from './components/Settings';
 import Theme from './components/Theme';
 import AudioManager from './utils/AudioManager';
 import { Toaster } from 'react-hot-toast';
-import BackgroundDecorations from './components/BackgroundDecorations';
 import { Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
