@@ -3,10 +3,9 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/src/main.tsx',
-  '/src/App.tsx',
-  '/src/index.css',
-  '/src/App.css'
+  '/images/opening/character_boy.png',
+  '/images/opening/character_girl.png',
+  '/audio/wudu/opening_welcome.mp3'
 ];
 
 self.addEventListener('install', (event) => {

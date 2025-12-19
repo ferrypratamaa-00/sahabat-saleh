@@ -26,7 +26,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings,
   const [stars, setStars] = useState<Array<{id: number, x: number, y: number, delay: number}>>([]);
 
   useEffect(() => {
-    const newStars = [...Array(20)].map((_, i) => ({
+    const newStars = [...Array(50)].map((_, i) => ({
       id: i,
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
@@ -193,6 +193,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings,
               repeat: Infinity,
               ease: "easeInOut"
             }}
+            style={{ top: '15%', left: '10%', fontSize: '4rem' }} // Positioned
           >
             🌙
           </motion.span>
@@ -208,8 +209,25 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings,
               ease: "easeInOut",
               delay: 0.5
             }}
+            style={{ top: '20%', right: '15%', fontSize: '3rem' }} // Positioned
           >
             ⭐
+          </motion.span>
+          <motion.span
+             className="float-emoji"
+             animate={{ x: [-20, 20, -20] }}
+             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+             style={{ top: '60%', left: '5%', fontSize: '5rem', opacity: 0.8 }}
+          >
+            ☁️
+          </motion.span>
+          <motion.span
+             className="float-emoji"
+             animate={{ x: [20, -20, 20] }}
+             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+             style={{ top: '40%', right: '5%', fontSize: '5rem', opacity: 0.8 }}
+          >
+             ☁️
           </motion.span>
         </motion.div>
       </motion.div>

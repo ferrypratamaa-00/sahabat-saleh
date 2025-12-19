@@ -107,7 +107,12 @@ class AudioManager {
     // Stop audio sebelumnya
     this.stopAll();
 
-    // Try Google TTS first
+    // Try Google TTS first, UNLESS chipmunk style is requested (Web Speech API handles pitch better)
+    if (this.voiceStyle === 'chipmunk') {
+      this.speakFallback(text, lang);
+      return;
+    }
+
     this.playGoogleTTS(text, lang).catch(() => {
       // Fallback to Web Speech API
       this.speakFallback(text, lang);
@@ -169,8 +174,8 @@ class AudioManager {
     try {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = lang;
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
+      utterance.rate = 1.1;
+      utterance.pitch = 1.5; // Higher pitch for cartoon/chipmunk effect
       
       speechSynthesis.speak(utterance);
     } catch (error) {
