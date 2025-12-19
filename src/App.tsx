@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import OpeningStory from './components/OpeningStory';
 import GameMenu from './components/GameMenu';
