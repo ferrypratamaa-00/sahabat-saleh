@@ -2,6 +2,7 @@ import React, { useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Play, CheckCircle, Trophy } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
+import BackgroundDecorations from './BackgroundDecorations';
 
 interface Game {
   id: number;
@@ -37,12 +38,17 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
     <div className="game-menu" style={{ 
       backgroundColor: '#FFFFFF',
       minHeight: '100vh',
+      position: 'relative', // Ensure relative positioning for absolute children
+      overflow: 'hidden' // Contain decorations
     }}>
+      <BackgroundDecorations />
+
       {/* Header with Progress */}
       <motion.div 
         className="menu-header"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
+        style={{ position: 'relative', zIndex: 10 }} // On top of decorations
       >
         <motion.h2 
           className="menu-title" 
@@ -89,7 +95,7 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
       </motion.div>
 
       {/* Roadmap Container */}
-      <div className="roadmap-container">
+      <div className="roadmap-container" style={{ position: 'relative', zIndex: 10 }}>
         {/* Winding Line */}
         <div className="roadmap-line" />
 
@@ -178,6 +184,7 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 200 }}
+          style={{ position: 'relative', zIndex: 20 }}
         >
           <Trophy size={40} className="trophy-large" />
           <h3>Alhamdulillah! Semua misi selesai! 🎉</h3>

@@ -12,19 +12,9 @@ import Settings from './components/Settings';
 import Theme from './components/Theme';
 import AudioManager from './utils/AudioManager';
 import { Toaster } from 'react-hot-toast';
+import BackgroundDecorations from './components/BackgroundDecorations';
 
 type Page = 'opening' | 'menu' | 'game1' | 'game2' | 'game3' | 'game4' | 'game5' | 'reward' | 'settings' | 'theme';
-
-// Memoized Background Component
-const AnimatedBackground = memo(() => (
-  <div className="animated-bg">
-    <div className="floating-shape"></div>
-    <div className="floating-shape"></div>
-    <div className="floating-shape"></div>
-    <div className="floating-shape"></div>
-    <div className="floating-shape"></div>
-  </div>
-));
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('opening');
@@ -33,6 +23,7 @@ function App() {
 
   // Stop audio saat pindah halaman
   useEffect(() => {
+    // We might want to keep background audio? But for now stop speech.
     audioManager.stopAll();
   }, [currentPage]);
 
@@ -46,7 +37,6 @@ function App() {
 
   const handleStart = useCallback(() => setCurrentPage('menu'), []);
   const handleSettings = useCallback(() => setCurrentPage('settings'), []);
-  // const handleTheme = useCallback(() => setCurrentPage('theme'), []);
 
   const handleSelectGame = useCallback((gameId: number) => {
     setCurrentPage(`game${gameId}` as Page);
@@ -55,20 +45,6 @@ function App() {
   const handleBack = useCallback(() => setCurrentPage('menu'), []);
 
   const handleComplete = useCallback((gameId: number) => {
-    setCompletedGames(prev => {
-      const newSet = new Set(prev);
-      newSet.add(gameId);
-      return newSet;
-    });
-    
-    // We need to use valid logic here. Since state update is async, 
-    // we should check the size against games.length carefully. 
-    // However, for simplicity and since we just added one, checking size + 1 (if not present) is okay, 
-    // but using the set callback is safer for the set itself.
-    // Determining page navigation needs current state or effect.
-    // Let's do a simple check: if we just completed the last one, go to reward.
-    // But safely, we can just navigate to menu first, then useEffect could check for completion?
-    // Or just check here:
     setCompletedGames(prev => {
       const newSet = new Set(prev);
       newSet.add(gameId);
@@ -89,12 +65,8 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'opening':
-        return <OpeningStory onStart={handleStart} onSettings={handleSettings} 
-        // onTheme={handleTheme} 
-        />;
+        return <OpeningStory onStart={handleStart} onSettings={handleSettings} />;
       case 'settings':
-        // Return to opening if that's where we came from, but simpler just to go back to opening for now
-        // Or if we want to support back to menu, we need history. currently sticking to simple structure.
         return <Settings onBack={() => setCurrentPage('opening')} />;
       case 'theme':
         return <Theme onBack={() => setCurrentPage('opening')} />;
@@ -119,7 +91,7 @@ function App() {
 
   return (
     <div className="app">
-      <AnimatedBackground />
+      <BackgroundDecorations />
       <Toaster position="top-center" />
       {renderPage()}
     </div>
