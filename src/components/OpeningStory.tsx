@@ -1,21 +1,38 @@
 import React, { useEffect, useState, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Settings, Palette } from 'lucide-react';
+import { Play, Settings, 
+  // Palette 
+} from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
 
 interface OpeningStoryProps {
   onStart: () => void;
   onSettings: () => void;
-  onTheme: () => void;
+  // onTheme: () => void;
 }
 
-const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, onTheme }) => {
+const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, 
+  // onTheme
+ }) => {
   const [showStars, setShowStars] = useState(false);
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
     setShowStars(true);
-    audioManager.playSound('/audio/wudu/opening_welcome.mp3');
+    // Play welcome speech with cartoon voice immediate
+    audioManager.speak("Selamat datang di Petualangan Sahabat Saleh");
+  }, []);
+
+  const [stars, setStars] = useState<Array<{id: number, x: number, y: number, delay: number}>>([]);
+
+  useEffect(() => {
+    const newStars = [...Array(20)].map((_, i) => ({
+      id: i,
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      delay: i * 0.2
+    }));
+    setStars(newStars);
   }, []);
 
   const handleStart = () => {
@@ -28,31 +45,31 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
     onSettings();
   };
 
-  const handleTheme = () => {
-    audioManager.playClick();
-    onTheme();
-  };
+  // const handleTheme = () => {
+  //   audioManager.playClick();
+  //   onTheme();
+  // };
 
   return (
     <div className="opening-story">
       {/* Animated stars background */}
       {showStars && (
         <div className="stars-container">
-          {[...Array(20)].map((_, i) => (
+          {stars.map((star) => (
             <motion.div
-              key={i}
+              key={star.id}
               className="star"
               initial={{ opacity: 0, scale: 0 }}
               animate={{ 
                 opacity: [0, 1, 0],
                 scale: [0, 1, 0],
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight
+                x: star.x,
+                y: star.y
               }}
               transition={{
                 duration: 3,
                 repeat: Infinity,
-                delay: i * 0.2,
+                delay: star.delay,
                 ease: "easeInOut"
               }}
             >
@@ -74,8 +91,10 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}
         >
-          🕌 Petualangan Sahabat Saleh 🌙
+          <img src="/images/game5/masjid.png" alt="Masjid" style={{ width: 'clamp(40px, 8vw, 60px)', height: 'auto' }} />
+          <span>Petualangan Sahabat Saleh</span>
         </motion.h1>
 
         {/* Story text */}
@@ -86,7 +105,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
           transition={{ delay: 0.4 }}
         >
           <p className="story-paragraph">
-            Hari ini Si Saleh dan Si Salihah ingin belajar menjadi anak yang baik.
+            Hai Sahabat Saleh, mari kita belajar menjadi anak yang baik.
             Ayo bantu mereka belajar tentang wudu, huruf hijaiyah, berbagi, dan salat!
           </p>
         </motion.div>
@@ -98,20 +117,22 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
         >
-          <motion.div 
-            className="character"
+          <motion.img
+            src="/images/opening/character_boy.png"
+            alt="Saleh"
+            className="character-img"
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 300 }}
-          >
-            👦
-          </motion.div>
-          <motion.div 
-            className="character"
+            style={{ width: 'clamp(100px, 30vw, 150px)', height: 'auto', margin: '0 0.5rem' }} 
+          />
+          <motion.img 
+            src="/images/opening/character_girl.png"
+            alt="Salihah"
+            className="character-img"
             whileHover={{ scale: 1.1, rotate: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
-          >
-            👧
-          </motion.div>
+            style={{ width: 'clamp(100px, 30vw, 150px)', height: 'auto', margin: '0 0.5rem' }}
+          />
         </motion.div>
 
         {/* Action Buttons */}
@@ -142,7 +163,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
               <span>Pengaturan</span>
             </motion.button>
 
-            <motion.button
+            {/* <motion.button
               className="btn-secondary"
               onClick={handleTheme}
               whileHover={{ scale: 1.05 }}
@@ -150,7 +171,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
             >
               <Palette size={20} />
               <span>Tema</span>
-            </motion.button>
+            </motion.button> */}
           </div>
         </motion.div>
 
@@ -173,7 +194,7 @@ const OpeningStory: React.FC<OpeningStoryProps> = memo(({ onStart, onSettings, o
               ease: "easeInOut"
             }}
           >
-            📚
+            🌙
           </motion.span>
           <motion.span
             className="float-emoji"

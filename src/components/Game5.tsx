@@ -8,6 +8,7 @@ interface Movement {
   id: string;
   name: string;
   emoji: string;
+  image: string;
   order: number;
 }
 
@@ -18,23 +19,22 @@ interface Game5Props {
 
 const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
   const correctMovements: Movement[] = [
-    { id: '1', name: 'Takbiratul Ihram', emoji: '🤲', order: 1 },
-    { id: '2', name: 'Berdiri (Qiyam)', emoji: '🧍', order: 2 },
-    { id: '3', name: 'Ruku', emoji: '🙇', order: 3 },
-    { id: '4', name: 'I\'tidal', emoji: '🧍', order: 4 },
-    { id: '5', name: 'Sujud', emoji: '🙏', order: 5 },
-    { id: '6', name: 'Duduk', emoji: '🧎', order: 6 },
+    { id: '1', name: 'Takbiratul Ihram', emoji: '🤲', image: '/images/game5/salat_takbir.png', order: 1 },
+    { id: '2', name: 'Berdiri (Qiyam)', emoji: '🧍', image: '/images/game5/salat_berdiri.png', order: 2 },
+    { id: '3', name: 'Ruku', emoji: '🙇', image: '/images/game5/salat_ruku.png', order: 3 },
+    { id: '4', name: 'I\'tidal', emoji: '🧍', image: '/images/game5/salat_itidal.png', order: 4 },
+    { id: '5', name: 'Sujud', emoji: '🙏', image: '/images/game5/salat_sujud.png', order: 5 },
+    { id: '6', name: 'Duduk', emoji: '🧎', image: '/images/game5/salat_duduk.png', order: 6 },
   ];
 
-  const [availableMovements, setAvailableMovements] = useState<Movement[]>([]);
+  const [availableMovements, setAvailableMovements] = useState<Movement[]>(() => {
+    return [...correctMovements].sort(() => Math.random() - 0.5);
+  });
   const [sequence, setSequence] = useState<Movement[]>([]);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
-    // Shuffle movements
-    const shuffled = [...correctMovements].sort(() => Math.random() - 0.5);
-    setAvailableMovements(shuffled);
     audioManager.playSound('/audio/wudu/susun_gerakan.mp3');
   }, []);
 
@@ -154,7 +154,9 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <div className="sequence-number">{index + 1}</div>
-                  <div className="sequence-emoji">{movement.emoji}</div>
+                  <div className="sequence-emoji">
+                     <img src={movement.image} alt={movement.name} style={{ width: '50px', height: '50px', objectFit: 'contain' }} />
+                  </div>
                   <div className="sequence-name">{movement.name}</div>
                   <div className="remove-hint">Klik untuk hapus</div>
                 </motion.div>
@@ -194,7 +196,9 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
                 whileTap={{ scale: 0.9 }}
                 style={{ cursor: 'grab' }}
               >
-                <div className="movement-emoji">{movement.emoji}</div>
+                <div className="movement-emoji">
+                  <img src={movement.image} alt={movement.name} style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
+                </div>
                 <div className="movement-name">{movement.name}</div>
               </motion.div>
             ))}

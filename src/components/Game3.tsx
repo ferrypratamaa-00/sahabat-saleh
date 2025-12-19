@@ -8,6 +8,7 @@ interface Recipient {
   id: string;
   name: string;
   emoji: string;
+  image: string;
   need: number;
   received: number;
   message: string;
@@ -20,24 +21,17 @@ interface Game3Props {
 }
 
 const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
-  const [apples, setApples] = useState<Array<{ id: string; x: number; y: number }>>([]);
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [draggedApple, setDraggedApple] = useState<string | null>(null);
-  const [isComplete, setIsComplete] = useState(false);
-  const audioManager = AudioManager.getInstance();
-  const basketRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
+  const [recipients, setRecipients] = useState<Recipient[]>(() => {
     // Initialize game with random recipients
     const numRecipients = Math.floor(Math.random() * 2) + 2; // 2-3 recipients
     const allRecipients = [
-      { name: 'Adik Kecil', emoji: '👶', message: 'Terima kasih kakak!', audio: '/audio/wudu/terima_kasih_kakak.mp3' },
-      { name: 'Teman', emoji: '👧', message: 'Barakallah!', audio: '/audio/wudu/barakallah.mp3' },
-      { name: 'Nenek', emoji: '👵', message: 'MasyaAllah!', audio: '/audio/wudu/masyaallah.mp3' },
-      { name: 'Kucing', emoji: '🐱', message: 'Meow~', audio: '/audio/wudu/meow.mp3' },
+      { name: 'Adik Kecil', emoji: '👶', image: '/images/game3/recipient_baby.png', message: 'Terima kasih kakak!', audio: '/audio/wudu/terima_kasih_kakak.mp3' },
+      { name: 'Teman', emoji: '👧', image: '/images/game3/recipient_friend.png', message: 'Barakallah!', audio: '/audio/wudu/barakallah.mp3' },
+      { name: 'Nenek', emoji: '👵', image: '/images/game3/recipient_grandma.png', message: 'MasyaAllah!', audio: '/audio/wudu/masyaallah.mp3' },
+      { name: 'Kucing', emoji: '🐱', image: '/images/game3/recipient_cat.png', message: 'Meow~', audio: '/audio/wudu/meow.mp3' },
     ];
 
-    const selectedRecipients: Recipient[] = allRecipients
+    return allRecipients
       .sort(() => Math.random() - 0.5)
       .slice(0, numRecipients)
       .map((r, idx) => ({
@@ -46,18 +40,24 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
         need: Math.floor(Math.random() * 3) + 2, // 2-4 apples each
         received: 0,
       }));
+  });
 
-    setRecipients(selectedRecipients);
-
-    // Create apples in basket
-    const totalApples = selectedRecipients.reduce((sum, r) => sum + r.need, 0);
-    const newApples = Array.from({ length: totalApples }, (_, i) => ({
+  const [apples, setApples] = useState<Array<{ id: string; x: number; y: number }>>(() => {
+    // Create apples based on recipients
+    const totalApples = recipients.reduce((sum, r) => sum + r.need, 0);
+    return Array.from({ length: totalApples }, (_, i) => ({
       id: `apple-${i}`,
       x: Math.random() * 60,
       y: Math.random() * 60,
     }));
-    setApples(newApples);
+  });
 
+  const [draggedApple, setDraggedApple] = useState<string | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
+  const audioManager = AudioManager.getInstance();
+  const basketRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
     audioManager.playSound('/audio/wudu/ayo_berbagi.mp3');
   }, []);
 
@@ -156,7 +156,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
                   whileTap={{ scale: 0.9 }}
                   style={{ cursor: 'grab' }}
                 >
-                  🍎
+                  <img src="/images/game3/item_apple.png" alt="Apel" style={{ width: '40px', height: '40px' }} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -182,7 +182,9 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => handleDrop(recipient.id)}
               >
-                <div className="recipient-emoji">{recipient.emoji}</div>
+                <div className="recipient-emoji">
+                  <img src={recipient.image} alt={recipient.name} style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
+                </div>
                 <h4 className="recipient-name">{recipient.name}</h4>
                 <div className="recipient-need">
                   Butuh: {recipient.need} apel
@@ -206,7 +208,7 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      🍎
+                      <img src="/images/game3/item_apple.png" alt="Apel" style={{ width: '20px', height: '20px' }} />
                     </motion.span>
                   ))}
                 </div>

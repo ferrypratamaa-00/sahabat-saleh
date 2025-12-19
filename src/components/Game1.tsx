@@ -5,12 +5,12 @@ import AudioManager from '../utils/AudioManager';
 import toast from 'react-hot-toast';
 
 const steps = [
-  { name: 'Niat', emoji: '🤲', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/wudu/niat_wudu.mp3' },
-  { name: 'Mencuci Tangan', emoji: '👐', icon: Hand, sound: 'Cuci tangan kanan dan kiri tiga kali', color: '#dbeafe', audio: '/audio/wudu/cuci_tangan.mp3' },
-  { name: 'Berkumur', emoji: '😊', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff', audio: '/audio/wudu/berkumur.mp3' },
-  { name: 'Istinsyaq', emoji: '👃', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff', audio: '/audio/wudu/istinsyaq.mp3' },
-  { name: 'Mencuci Muka', emoji: '😌', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe', audio: '/audio/wudu/cuci_muka.mp3' },
-  { name: 'Selesai!', emoji: '✨', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7', audio: '/audio/wudu/wudu_selesai.mp3' },
+  { name: 'Niat', emoji: '🤲', image: '/images/game1/wudu_niat.png', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/wudu/niat_wudu.mp3' },
+  { name: 'Mencuci Tangan', emoji: '👐', image: '/images/game1/wudu_tangan.png', icon: Hand, sound: 'Cuci tangan kanan dan kiri tiga kali', color: '#dbeafe', audio: '/audio/wudu/cuci_tangan.mp3' },
+  { name: 'Berkumur', emoji: '😊', image: '/images/game1/wudu_kumur.png', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff', audio: '/audio/wudu/berkumur.mp3' },
+  { name: 'Istinsyaq', emoji: '👃', image: '/images/game1/wudu_hidung.png', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff', audio: '/audio/wudu/istinsyaq.mp3' },
+  { name: 'Mencuci Muka', emoji: '😌', image: '/images/game1/wudu_muka.png', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe', audio: '/audio/wudu/cuci_muka.mp3' },
+  { name: 'Selesai!', emoji: '✨', image: '/images/game1/wudu_selesai.png', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7', audio: '/audio/wudu/wudu_selesai.mp3' },
 ];
 
 interface Game1Props {
@@ -33,8 +33,6 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
 
   useEffect(() => {
     if (gameMode === 'learn' && currentStep < steps.length) {
-      // Stop previous audio first? AudioManager.stopAll() handles it if implemented, 
-      // but playSound appends. Let's stop all first.
       audioManager.stopAll();
       audioManager.playSound(steps[currentStep].audio);
     }
@@ -68,7 +66,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
       
       setTimeout(() => {
         audioManager.playSound(clickedStep.audio);
-      }, 1000); // Delay for "Benar" to finish approx
+      }, 1000); 
 
       toast.success('MasyaAllah! Benar!', { icon: '✅', duration: 1500 });
       
@@ -119,8 +117,12 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
               maxWidth: '400px'
             }}
           >
-            <div style={{ fontSize: 'clamp(4rem, 10vw, 6rem)', marginBottom: '1rem' }}>
-              {steps[currentStep].emoji}
+            <div style={{ marginBottom: '1rem' }}>
+               <img 
+                 src={steps[currentStep].image} 
+                 alt={steps[currentStep].name}
+                 style={{ width: '200px', height: 'auto', objectFit: 'contain' }}
+               />
             </div>
             <h3 style={{ color: 'var(--text-title)', marginBottom: '1rem' }}>
               {steps[currentStep].name}
@@ -189,8 +191,12 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
                   pointerEvents: isCompleted ? 'none' : 'auto'
                 }}
               >
-                <div style={{ fontSize: 'clamp(2.5rem, 6vw, 3.5rem)', marginBottom: '0.5rem' }}>
-                  {step.emoji}
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <img 
+                    src={step.image} 
+                    alt={step.name}
+                    style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+                  />
                 </div>
                 <h4 style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', margin: '0.5rem 0' }}>
                   {step.name}

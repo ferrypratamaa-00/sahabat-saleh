@@ -25,9 +25,9 @@ class AudioManager {
     
     if (!this.audioContext) {
       try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         this.audioContext = new AudioContextClass();
-      } catch (e) {
+      } catch {
         console.warn('Web Audio API not supported');
         return null;
       }
@@ -125,6 +125,20 @@ class AudioManager {
         
         const audio = new Audio(url);
         audio.volume = 1;
+
+        // Apply chipmunk effect if enabled
+        if (this.voiceStyle === 'chipmunk') {
+          const rate = 1.3;
+          audio.playbackRate = rate;
+          
+          if ('preservesPitch' in audio) {
+            (audio as unknown as { preservesPitch: boolean }).preservesPitch = false;
+          } else if ('mozPreservesPitch' in audio) {
+            (audio as unknown as { mozPreservesPitch: boolean }).mozPreservesPitch = false;
+          } else if ('webkitPreservesPitch' in audio) {
+            (audio as unknown as { webkitPreservesPitch: boolean }).webkitPreservesPitch = false;
+          }
+        }
         
         audio.oncanplaythrough = () => {
           this.audioElements.push(audio);
@@ -186,11 +200,11 @@ class AudioManager {
         // Critically, we MUST disable pitch preservation to get the "chipmunk" effect (high pitch)
         // when speeding up. If preservesPitch is true (default), it just speaks faster but same pitch.
         if ('preservesPitch' in audio) {
-          (audio as any).preservesPitch = false;
+          (audio as unknown as { preservesPitch: boolean }).preservesPitch = false;
         } else if ('mozPreservesPitch' in audio) {
-          (audio as any).mozPreservesPitch = false;
+          (audio as unknown as { mozPreservesPitch: boolean }).mozPreservesPitch = false;
         } else if ('webkitPreservesPitch' in audio) {
-          (audio as any).webkitPreservesPitch = false;
+          (audio as unknown as { webkitPreservesPitch: boolean }).webkitPreservesPitch = false;
         }
       }
 
@@ -203,7 +217,8 @@ class AudioManager {
       
       this.audioElements.push(audio);
       audio.play().catch(() => {});
-    } catch (error) {
+    } catch {
+      // Ignore
     }
   }
 
@@ -220,7 +235,7 @@ class AudioManager {
       this.audioElements.push(audio);
       audio.play().catch(() => {});
       return audio;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

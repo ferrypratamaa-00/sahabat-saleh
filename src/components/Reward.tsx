@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Star, RotateCcw, Sparkles } from 'lucide-react';
+import { Star, RotateCcw, Sparkles } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
 import confetti from 'canvas-confetti';
 
@@ -11,6 +11,37 @@ interface RewardProps {
 const Reward: React.FC<RewardProps> = memo(({ onPlayAgain }) => {
   const [stars, setStars] = useState(0);
   const audioManager = AudioManager.getInstance();
+
+  function fireConfetti() {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      });
+    }, 250);
+  }
 
   useEffect(() => {
     // Play success sound
@@ -41,37 +72,6 @@ const Reward: React.FC<RewardProps> = memo(({ onPlayAgain }) => {
     };
   }, []);
 
-  const fireConfetti = () => {
-    const duration = 3000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    function randomInRange(min: number, max: number) {
-      return Math.random() * (max - min) + min;
-    }
-
-    const interval = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-      
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-      });
-    }, 250);
-  };
-
   const handlePlayAgain = () => {
     audioManager.playClick();
     onPlayAgain();
@@ -92,7 +92,11 @@ const Reward: React.FC<RewardProps> = memo(({ onPlayAgain }) => {
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 150 }}
         >
-          <Trophy size={80} className="trophy-icon-large" />
+          <img 
+            src="/images/common/trophy.png" 
+            alt="Trophy" 
+            style={{ width: '150px', height: 'auto' }} 
+          />
         </motion.div>
 
         {/* Title */}

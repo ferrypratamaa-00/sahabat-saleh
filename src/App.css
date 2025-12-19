@@ -16,7 +16,7 @@
   overflow-x: hidden;
 }
 
-.opening-story,
+/* .opening-story removed from here */
 .game-menu,
 .game1,
 .game2,
@@ -160,7 +160,8 @@ button:active {
   background: var(--bg-card);
   padding: clamp(1.25rem, 3vw, 1.5rem);
   border-radius: clamp(1rem, 2vw, 1.5rem);
-  border: 2px solid var(--primary-soft);
+  border: 3px dashed var(--primary);
+  /* Dashed border */
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -395,7 +396,25 @@ button:active {
   padding: clamp(0.75rem, 2vw, 1rem);
   border-radius: clamp(0.75rem, 2vw, 1rem);
   margin: clamp(1rem, 2vw, 1.5rem) 0;
+  border: 3px dashed var(--warning);
+  /* Dashed border, darker than default */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.progress-text {
+  font-size: 1.5rem;
+  /* Larger text */
+  font-weight: 800;
+  color: var(--secondary-hover);
+  /* Match border color (orange-ish) */
 }
 
 .progress-bar {
@@ -409,7 +428,7 @@ button:active {
 
 .progress-fill {
   height: 100%;
-  background: var(--success);
+  background: var(--secondary);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 9999px;
   position: relative;
@@ -614,10 +633,64 @@ button:focus-visible,
    OPENING STORY STYLES
    ============================================ */
 .opening-story {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  /* Mobile viewport height fix */
   overflow: hidden;
   background: var(--bg-main);
-  min-height: 100vh;
+  z-index: 1000;
+  /* Ensure it stays on top */
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 640px) {
+  .opening-title {
+    font-size: 2.2rem !important;
+    /* Increased mobile title */
+    margin-bottom: 0.5rem !important;
+  }
+
+  .opening-story-text {
+    margin-bottom: 1rem !important;
+  }
+
+  .story-paragraph {
+    font-size: 1.15rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .characters-container {
+    margin-bottom: 1rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .opening-buttons {
+    margin-top: 1rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .btn-start {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+
+  .secondary-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 0.75rem !important;
+  }
+
+  .btn-secondary {
+    padding: 0.5rem 0.5rem !important;
+    font-size: 0.8rem !important;
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .stars-container {
@@ -625,6 +698,7 @@ button:focus-visible,
   width: 100%;
   height: 100%;
   pointer-events: none;
+
 }
 
 .star {
@@ -639,25 +713,37 @@ button:focus-visible,
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: clamp(1rem, 3vw, 2rem);
+  height: 100%;
+  width: 100%;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  /* Increased padding for desktop */
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.opening-content::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari */
 }
 
 .opening-title {
-  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
   font-weight: 800;
   color: var(--text-title);
-  margin-bottom: clamp(1rem, 3vw, 2rem);
+  margin-bottom: 2vh;
   text-shadow: none;
 }
 
 .opening-story-text {
   max-width: 600px;
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: 2vh;
 }
 
 .story-paragraph {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
   line-height: 1.8;
   color: #374151;
   font-weight: 500;
@@ -667,7 +753,7 @@ button:focus-visible,
   display: flex;
   gap: clamp(1rem, 4vw, 2rem);
   justify-content: center;
-  margin-bottom: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 3vh;
   font-size: clamp(5rem, 15vw, 10rem);
 }
 
@@ -680,10 +766,9 @@ button:focus-visible,
 
 .opening-buttons {
   display: flex;
-  flex-direction: column;
   gap: clamp(1rem, 2vw, 1.5rem);
   align-items: center;
-  margin-top: clamp(2rem, 5vw, 3rem);
+  margin-top: 2vh;
 }
 
 .btn-start {

@@ -7,6 +7,7 @@ interface Game {
   id: number;
   title: string;
   emoji: string;
+  image: string;
   description: string;
   completed: boolean;
 }
@@ -33,14 +34,41 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
   const progressPercentage = (completedCount / games.length) * 100;
 
   return (
-    <div className="game-menu">
+    <div className="game-menu" style={{ 
+      backgroundColor: '#FFFFFF',
+      minHeight: '100vh',
+    }}>
       {/* Header with Progress */}
       <motion.div 
         className="menu-header"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h2 className="menu-title">🗺️ Peta Petualangan</h2>
+        <motion.h2 
+          className="menu-title" 
+          style={{
+            color: 'var(--secondary)',
+            fontWeight: '900',
+            textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)',
+            display: 'inline-block',
+            padding: '0.5rem 1rem',
+            background: 'white',
+            borderRadius: '1rem',
+            border: '2px dashed var(--secondary)'
+          }}
+          animate={{ 
+            scale: [1, 1.05, 1],
+            rotate: [0, 2, -2, 0]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          whileHover={{ scale: 1.1, rotate: 0 }}
+        >
+          🗺️ Peta Petualangan
+        </motion.h2>
         
         <div className="progress-container">
           <div className="progress-header">
@@ -107,7 +135,7 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
                       </motion.div>
                     )}
 
-                    {/* Emoji Icon */}
+                    {/* Image Icon */}
                     <motion.div 
                       className="game-emoji"
                       animate={!game.completed && isUnlocked ? {
@@ -116,7 +144,11 @@ const GameMenu: React.FC<GameMenuProps> = memo(({ games, onSelectGame, completed
                       } : {}}
                       transition={{ duration: 3, repeat: Infinity }}
                     >
-                      {game.emoji}
+                      <img 
+                        src={game.image} 
+                        alt={game.title} 
+                        style={{ width: '60px', height: '60px', objectFit: 'contain' }} 
+                      />
                     </motion.div>
 
                     <div className="game-info">

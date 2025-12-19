@@ -8,6 +8,7 @@ interface ClothingItem {
   id: string;
   name: string;
   emoji: string;
+  image: string;
   isCorrect: boolean;
   description: string;
 }
@@ -18,30 +19,30 @@ interface Game4Props {
 }
 
 const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
-  const [clothingOptions, setClothingOptions] = useState<ClothingItem[]>([]);
+  const [clothingOptions] = useState<ClothingItem[]>(() => {
+    // Define items locally inside the initializer or use the static list but accessed safely
+     const allClothing: ClothingItem[] = [
+      { id: '1', name: 'Baju Koko', emoji: '👔', image: '/images/game4/clothes_koko.png', isCorrect: true, description: 'Baju yang sopan!' },
+      { id: '2', name: 'Gamis', emoji: '🧕', image: '/images/game4/clothes_gamis.png', isCorrect: true, description: 'Pakaian syar\'i!' },
+      { id: '3', name: 'Peci', emoji: '🧢', image: '/images/game4/clothes_peci.png', isCorrect: true, description: 'Tutup kepala!' },
+      { id: '4', name: 'Hijab', emoji: '🧕', image: '/images/game4/clothes_hijab.png', isCorrect: true, description: 'Cantik dan sopan!' },
+      { id: '5', name: 'Sarung', emoji: '👘', image: '/images/game4/clothes_sarung.png', isCorrect: true, description: 'Pakaian ke masjid!' },
+      { id: '6', name: 'Kaos Santai', emoji: '👕', image: '/images/game4/clothes_tshirt.png', isCorrect: false, description: 'Kurang sopan' },
+      { id: '7', name: 'Celana Pendek', emoji: '🩳', image: '/images/game4/clothes_shorts.png', isCorrect: false, description: 'Terlalu pendek' },
+      { id: '8', name: 'Baju Renang', emoji: '🩱', image: '/images/game4/clothes_swimsuit.png', isCorrect: false, description: 'Untuk berenang' },
+    ];
+
+    const correctItems = allClothing.filter(c => c.isCorrect).sort(() => Math.random() - 0.5).slice(0, 4);
+    const wrongItems = allClothing.filter(c => !c.isCorrect).sort(() => Math.random() - 0.5).slice(0, 2);
+    
+    return [...correctItems, ...wrongItems].sort(() => Math.random() - 0.5);
+  });
+
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
   const audioManager = AudioManager.getInstance();
 
-  const allClothing: ClothingItem[] = [
-    { id: '1', name: 'Baju Koko', emoji: '👔', isCorrect: true, description: 'Baju yang sopan!' },
-    { id: '2', name: 'Gamis', emoji: '🧕', isCorrect: true, description: 'Pakaian syar\'i!' },
-    { id: '3', name: 'Peci', emoji: '🧢', isCorrect: true, description: 'Tutup kepala!' },
-    { id: '4', name: 'Hijab', emoji: '🧕', isCorrect: true, description: 'Cantik dan sopan!' },
-    { id: '5', name: 'Sarung', emoji: '👘', isCorrect: true, description: 'Pakaian ke masjid!' },
-    { id: '6', name: 'Kaos Santai', emoji: '👕', isCorrect: false, description: 'Kurang sopan' },
-    { id: '7', name: 'Celana Pendek', emoji: '🩳', isCorrect: false, description: 'Terlalu pendek' },
-    { id: '8', name: 'Baju Renang', emoji: '🩱', isCorrect: false, description: 'Untuk berenang' },
-  ];
-
   useEffect(() => {
-    // Randomly select 6 items (4 correct, 2 wrong)
-    const correctItems = allClothing.filter(c => c.isCorrect).sort(() => Math.random() - 0.5).slice(0, 4);
-    const wrongItems = allClothing.filter(c => !c.isCorrect).sort(() => Math.random() - 0.5).slice(0, 2);
-    
-    const selected = [...correctItems, ...wrongItems].sort(() => Math.random() - 0.5);
-    setClothingOptions(selected);
-    
     audioManager.playSound('/audio/wudu/pilih_pakaian.mp3');
   }, []);
 
@@ -151,7 +152,9 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="clothing-emoji">{item.emoji}</div>
+                <div className="clothing-emoji">
+                  <img src={item.image} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
+                </div>
                 <div className="clothing-name">{item.name}</div>
                 
                 {isSelected && !showResult && (
