@@ -1,9 +1,8 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Droplet, Hand, Smile, Wind, Sparkles, ArrowLeft, CheckCircle, ArrowRight, User, Ear, Footprints } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
 import FeedbackModal from './FeedbackModal';
-// import toast from 'react-hot-toast';
 
 const steps = [
   { name: 'Niat', emoji: '🤲', image: '/images/game1/wudu_niat.png', icon: Sparkles, sound: 'Niat untuk wudu', color: '#e0f2fe', audio: '/audio/niat_wudu.mp3' },
@@ -22,6 +21,40 @@ interface Game1Props {
   onBack: () => void;
   onComplete: () => void;
 }
+
+// Memoized Step Card for Test Mode
+const WuduStepCard = memo(({ step, index, isCompleted, onClick }: { step: typeof steps[0], index: number, isCompleted: boolean, onClick: (index: number) => void }) => {
+  return (
+    <motion.div
+      className={`wudu-step ${isCompleted ? 'completed' : ''}`}
+      onClick={() => onClick(index)}
+      whileHover={!isCompleted ? { scale: 1.05 } : {}}
+      whileTap={!isCompleted ? { scale: 0.95 } : {}}
+      style={{
+        background: isCompleted ? step.color : 'white',
+        opacity: isCompleted ? 0.6 : 1,
+        cursor: isCompleted ? 'default' : 'pointer',
+        pointerEvents: isCompleted ? 'none' : 'auto'
+      }}
+    >
+      <div style={{ marginBottom: '0.5rem' }}>
+        <img 
+          src={step.image} 
+          alt={step.name}
+          style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+        />
+      </div>
+      <h4 style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', margin: '0.5rem 0' }}>
+        {step.name}
+      </h4>
+      {isCompleted && (
+        <div style={{ marginTop: '0.5rem', color: 'var(--success)' }}>
+          <CheckCircle size={32} fill="white" />
+        </div>
+      )}
+    </motion.div>
+  );
+});
 
 const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -44,9 +77,9 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
     }
   }, [currentStep, gameMode]);
 
-  const handleLearnNext = () => {
+  const handleLearnNext = useCallback(() => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(prev => prev + 1);
     } else {
       setFeedback({
         isOpen: true,
@@ -54,62 +87,72 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
         title: 'Hebat!',
         message: 'Kamu sudah belajar semua langkah wudu! Sekarang coba urutkan!'
       });
-      // toast.success('Kamu sudah belajar semua langkah wudu! Sekarang coba urutkan!', {
-      //   duration: 3000,
-      //   icon: '🎉'
-      // });
-      // setTimeout(() => {
-         // Moved to Feedback Close
-      // }, 2000);
     }
-  };
+  }, [currentStep]);
 
-  const handleStepClick = (index: number) => {
-    const correctIndex = userSequence.length;
-    const clickedStep = shuffledSteps[index];
-    const correctStep = steps[correctIndex];
+  const handleStepClick = useCallback((index: number) => {
+    // Need access to latest state, but useCallback with deps might re-create.
+    // However, since we need `userSequence` and `shuffledSteps` (which is stable-ish), 
+    // real memoization benefit comes if we pass index and handle logic parent side or refer via refs.
+    // For simplicity with correct logic, we keep it simple but memoize the child component.
+    // Actually, to make `WuduStepCard` memo work, `handleStepClick` ref shouldn't change.
+    // But it depends on `userSequence`. So the function reference WILL change.
+    // But `WuduStepCard` of *other* unclicked items won't re-render if we passed `isCompleted` as prop only?
+    // Wait, if `handleStepClick` changes, ALL children re-render.
+    // Optimization: Pass `index` to the handler wrapper?
+    // We'll proceed with direct implementation for now as `userSequence` changes are necessary updates.
+    
+    // We can't easily avoid re-creating this function without refs, but the key is that
+    // only the clicked item changes visual state mostly.
+    
+    // Let's rely on React's fast diffing but keep separate component to reduce DOM complexity per item.
+    
+    // To truly fix `handleStepClick` dep:
+    setUserSequence(prevSequence => {
+        const correctIndex = prevSequence.length;
+        // checking shuffledSteps needs it in scope. It's stable.
+        const clickedStep = shuffledSteps[index];
+        const correctStep = steps[correctIndex];
 
-    audioManager.stopAll();
+        audioManager.stopAll();
 
-    if (clickedStep.name === correctStep.name) {
-      // Play "Benar" then the step sound
-      audioManager.playSound('/audio/benar.mp3');
-      
-      audioManager.playSound(clickedStep.audio); // Play desc
-      
-      // toast.success('MasyaAllah! Benar!', { icon: '✅', duration: 1500 });
-      // Too frequent for modal? Maybe keep toast for small steps or simple visual queue? 
-      // User asked for modal on error/success. Let's use modal for BIG success (completion) and Errors.
-      // Small success can stay subtle or use micro-interaction. 
-      // User said "silang besar ditengah", implies Modal for Error.
-      
-      const newSequence = [...userSequence, index];
-      setUserSequence(newSequence);
+        if (clickedStep.name === correctStep.name) {
+            audioManager.playSound('/audio/benar.mp3');
+            audioManager.playSound(clickedStep.audio);
 
-      if (newSequence.length === steps.length - 1) {
-        setTimeout(() => {
-          audioManager.stopAll();
-          audioManager.playSound('/audio/game_selesai.mp3');
-          setFeedback({
-            isOpen: true,
-            type: 'success',
-            title: 'Sempurna!',
-            message: 'Kamu menguasai urutan wudu!'
-          });
-        }, 2000);
-      }
-    } else {
-      audioManager.playSound('/audio/salah.mp3');
-      setFeedback({
-        isOpen: true,
-        type: 'error',
-        title: 'Ups!',
-        message: 'Coba ingat-ingat lagi urutannya ya!'
-      });
-    }
-  };
+            const newSequence = [...prevSequence, index];
+            
+            if (newSequence.length === steps.length - 1) {
+                setTimeout(() => {
+                audioManager.stopAll();
+                audioManager.playSound('/audio/game_selesai.mp3');
+                setFeedback({
+                    isOpen: true,
+                    type: 'success',
+                    title: 'Sempurna!',
+                    message: 'Kamu menguasai urutan wudu!'
+                });
+                }, 2000);
+            }
+            return newSequence;
+        } else {
+            audioManager.playSound('/audio/salah.mp3');
+            setFeedback({
+                isOpen: true,
+                type: 'error',
+                title: 'Ups!',
+                message: 'Coba ingat-ingat lagi urutannya ya!'
+            });
+            return prevSequence;
+        }
+    });
 
-  const closeFeedback = () => {
+  }, [shuffledSteps]); // Removed userSequence dependency by using functional update
+
+
+  
+  // Re-implementing simple closeFeedback for clarity, optimization here is negligible compared to lists.
+  const handleCloseFeedback = () => {
       const mode = gameMode;
       const title = feedback?.title;
 
@@ -192,7 +235,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             type={feedback.type}
             title={feedback.title}
             message={feedback.message}
-            onClose={closeFeedback}
+            onClose={handleCloseFeedback}
           />
         )}
       </div>
@@ -232,35 +275,13 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             const isCompleted = userSequence.includes(index);
             
             return (
-              <motion.div
-                key={index}
-                className={`wudu-step ${isCompleted ? 'completed' : ''}`}
-                onClick={() => !isCompleted && handleStepClick(index)}
-                whileHover={!isCompleted ? { scale: 1.05 } : {}}
-                whileTap={!isCompleted ? { scale: 0.95 } : {}}
-                style={{
-                  background: isCompleted ? step.color : 'white',
-                  opacity: isCompleted ? 0.6 : 1,
-                  cursor: isCompleted ? 'default' : 'pointer',
-                  pointerEvents: isCompleted ? 'none' : 'auto'
-                }}
-              >
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <img 
-                    src={step.image} 
-                    alt={step.name}
-                    style={{ width: '80px', height: '80px', objectFit: 'contain' }}
-                  />
-                </div>
-                <h4 style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', margin: '0.5rem 0' }}>
-                  {step.name}
-                </h4>
-                {isCompleted && (
-                  <div style={{ marginTop: '0.5rem', color: 'var(--success)' }}>
-                    <CheckCircle size={32} fill="white" />
-                  </div>
-                )}
-              </motion.div>
+              <WuduStepCard 
+                key={index} 
+                step={step} 
+                index={index} 
+                isCompleted={isCompleted} 
+                onClick={handleStepClick}
+              />
             );
           })}
         </div>
@@ -272,7 +293,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             type={feedback.type}
             title={feedback.title}
             message={feedback.message}
-            onClose={closeFeedback}
+            onClose={handleCloseFeedback}
           />
       )}
     </div>

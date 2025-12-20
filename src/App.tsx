@@ -1,12 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import './App.css';
 import OpeningStory from './components/OpeningStory';
 import GameMenu from './components/GameMenu';
-import Game1 from './components/Game1';
-import Game2 from './components/Game2';
-import Game3 from './components/Game3';
-import Game4 from './components/Game4';
-import Game5 from './components/Game5';
 import Reward from './components/Reward';
 import Settings from './components/Settings';
 import Theme from './components/Theme';
@@ -14,6 +9,13 @@ import AudioManager from './utils/AudioManager';
 import { Toaster } from 'react-hot-toast';
 import { Volume } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+// Lazy load game components
+const Game1 = lazy(() => import('./components/Game1'));
+const Game2 = lazy(() => import('./components/Game2'));
+const Game3 = lazy(() => import('./components/Game3'));
+const Game4 = lazy(() => import('./components/Game4'));
+const Game5 = lazy(() => import('./components/Game5'));
 
 type Page = 'opening' | 'menu' | 'game1' | 'game2' | 'game3' | 'game4' | 'game5' | 'reward' | 'settings' | 'theme';
 
@@ -64,30 +66,40 @@ function App() {
   }, []);
 
   const renderPage = () => {
-    switch (currentPage) {
-      case 'opening':
-        return <OpeningStory onStart={handleStart} onSettings={handleSettings} />;
-      case 'settings':
-        return <Settings onBack={() => setCurrentPage('opening')} />;
-      case 'theme':
-        return <Theme onBack={() => setCurrentPage('opening')} />;
-      case 'menu':
-        return <GameMenu games={games} onSelectGame={handleSelectGame} completedCount={completedGames.size} />;
-      case 'game1':
-        return <Game1 onBack={handleBack} onComplete={() => handleComplete(1)} />;
-      case 'game2':
-        return <Game2 onBack={handleBack} onComplete={() => handleComplete(2)} />;
-      case 'game3':
-        return <Game3 onBack={handleBack} onComplete={() => handleComplete(3)} />;
-      case 'game4':
-        return <Game4 onBack={handleBack} onComplete={() => handleComplete(4)} />;
-      case 'game5':
-        return <Game5 onBack={handleBack} onComplete={() => handleComplete(5)} />;
-      case 'reward':
-        return <Reward onPlayAgain={handlePlayAgain} />;
-      default:
-        return <div>Page not found</div>;
-    }
+    return (
+      <Suspense fallback={
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '2rem', color: 'var(--primary)' }}>
+          Loading... ⌛
+        </div>
+      }>
+        {(() => {
+          switch (currentPage) {
+            case 'opening':
+              return <OpeningStory onStart={handleStart} onSettings={handleSettings} />;
+            case 'settings':
+              return <Settings onBack={() => setCurrentPage('opening')} />;
+            case 'theme':
+              return <Theme onBack={() => setCurrentPage('opening')} />;
+            case 'menu':
+              return <GameMenu games={games} onSelectGame={handleSelectGame} completedCount={completedGames.size} />;
+            case 'game1':
+              return <Game1 onBack={handleBack} onComplete={() => handleComplete(1)} />;
+            case 'game2':
+              return <Game2 onBack={handleBack} onComplete={() => handleComplete(2)} />;
+            case 'game3':
+              return <Game3 onBack={handleBack} onComplete={() => handleComplete(3)} />;
+            case 'game4':
+              return <Game4 onBack={handleBack} onComplete={() => handleComplete(4)} />;
+            case 'game5':
+              return <Game5 onBack={handleBack} onComplete={() => handleComplete(5)} />;
+            case 'reward':
+              return <Reward onPlayAgain={handlePlayAgain} />;
+            default:
+              return <div>Page not found</div>;
+          }
+        })()}
+      </Suspense>
+    );
   };
 
   return (

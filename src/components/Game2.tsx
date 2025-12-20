@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, ArrowLeft } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
@@ -22,6 +22,36 @@ interface Game2Props {
   onBack: () => void;
   onComplete: () => void;
 }
+
+// Memoized Option Component
+const LetterOption = memo(({ letter, index, showResult, onClick }: { letter: typeof letters[0], index: number, showResult: boolean, onClick: (letter: typeof letters[0]) => void }) => {
+  return (
+    <motion.div
+      className="option-item"
+      onClick={() => !showResult && onClick(letter)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      style={{
+        fontSize: 'clamp(3rem, 8vw, 4.5rem)',
+        fontWeight: 'bold',
+        cursor: showResult ? 'default' : 'pointer',
+        pointerEvents: showResult ? 'none' : 'auto'
+      }}
+    >
+      {letter.arabic}
+      <div style={{ 
+        fontSize: 'clamp(0.875rem, 2vw, 1rem)', 
+        marginTop: '0.5rem',
+        color: 'var(--text-muted)'
+      }}>
+        {letter.name}
+      </div>
+    </motion.div>
+  );
+});
 
 const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
   const [queue, setQueue] = useState<typeof letters>([]);
@@ -70,17 +100,28 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
     setOptions([target, ...wrongs].sort(() => 0.5 - Math.random()));
   };
 
-  const playLetterSound = () => {
+  const playLetterSound = useCallback(() => {
     if (queue.length > 0 && currentQuestionIndex < queue.length) {
         const target = queue[currentQuestionIndex];
         audioManager.stopAll();
         audioManager.playSound(target.audio);
     }
-  };
+  }, [queue, currentQuestionIndex]);
 
-  const handleSelect = (letter: typeof letters[0]) => {
+  const handleSelect = useCallback((letter: typeof letters[0]) => {
+    // Need access to current target from queue
+    // Since queue is state, we need it in deps, or use functional update pattern logic if we extracted logic.
+    // Here we can rely on `queue` and `currentQuestionIndex` being fresh enough or use a Ref for latest.
+    // Simpler to just include deps as this function re-creation is cheap compared to rendering list of heavy items.
+    // BUT we want to pass this to `LetterOption`. If this changes, `LetterOption` re-renders.
+    // `queue` doesn't change often (set once), `currentQuestionIndex` changes once per round.
+    // So `handleSelect` is stable *within a round*. That's good enough!
+    
     const target = queue[currentQuestionIndex];
     audioManager.stopAll();
+    
+    // Safety check if target undefined (e.g. end of game state race)
+    if (!target) return;
 
     if (letter.arabic === target.arabic) {
       audioManager.playSound('/audio/benar.mp3'); 
@@ -89,7 +130,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
          audioManager.playSound(letter.audio);
       }, 1000);
 
-      setScore(score + 1);
+      setScore(prev => prev + 1);
       setShowResult(true);
 
       setTimeout(() => {
@@ -115,15 +156,17 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
           message: 'Coba dengarkan lagi ya! 🎧'
       });
     }
-  };
+  }, [queue, currentQuestionIndex]);
 
-  const closeFeedback = () => {
-      const title = feedback?.title;
-      setFeedback(null);
-      if (title === 'Hebat!') {
-          onComplete();
-      }
-  };
+  const closeFeedback = useCallback(() => {
+      setFeedback(prev => {
+          const title = prev?.title;
+          if (title === 'Hebat!') {
+              onComplete();
+          }
+          return null;
+      });
+  }, [onComplete]);
 
   return (
     <div className="game2">
@@ -196,31 +239,13 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
 
         <div className="options">
           {options.map((letter, index) => (
-            <motion.div
+            <LetterOption 
               key={`${currentQuestionIndex}-${index}`}
-              className="option-item"
-              onClick={() => !showResult && handleSelect(letter)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              style={{
-                fontSize: 'clamp(3rem, 8vw, 4.5rem)',
-                fontWeight: 'bold',
-                cursor: showResult ? 'default' : 'pointer',
-                pointerEvents: showResult ? 'none' : 'auto'
-              }}
-            >
-              {letter.arabic}
-              <div style={{ 
-                fontSize: 'clamp(0.875rem, 2vw, 1rem)', 
-                marginTop: '0.5rem',
-                color: 'var(--text-muted)'
-              }}>
-                {letter.name}
-              </div>
-            </motion.div>
+              letter={letter}
+              index={index}
+              showResult={showResult}
+              onClick={handleSelect}
+            />
           ))}
         </div>
 
