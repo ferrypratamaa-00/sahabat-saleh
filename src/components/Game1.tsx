@@ -181,6 +181,16 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             )}
           </motion.button>
         </motion.div>
+
+        {feedback && (
+          <FeedbackModal
+            isOpen={feedback.isOpen}
+            type={feedback.type}
+            title={feedback.title}
+            message={feedback.message}
+            onClose={closeFeedback}
+          />
+        )}
       </div>
     );
   }
