@@ -86,7 +86,7 @@ class AudioManager {
   private activeSources: Set<AudioBufferSourceNode> = new Set();
 
   // Stop semua audio dan speech
-  stopAll(): void {
+  stopAll(includeBGM: boolean = false): void {
     // Stop speech synthesis
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       speechSynthesis.cancel();
@@ -110,12 +110,22 @@ class AudioManager {
       this.activeSources.clear();
     }
 
-    // Stop semua audio elements (Legacy/Backup)
+    // Stop semua audio elements (Legacy/Backup) EXCEPT BGM unless requested
     this.audioElements.forEach(audio => {
+      if (!includeBGM && audio === this.bgm) return;
+      
       audio.pause();
       audio.currentTime = 0;
     });
-    this.audioElements = [];
+
+    // Cleanup array, keeping BGM if not stopped
+    if (includeBGM) {
+        this.audioElements = [];
+        this.bgm = null; 
+        // Note: we set bgm current time 0 above
+    } else {
+        this.audioElements = this.bgm ? [this.bgm] : [];
+    }
   }
 
   // Play text-to-speech
@@ -298,9 +308,25 @@ class AudioManager {
     }
   }
 
-  // Play background music dengan loop
-  playBackgroundMusic(src: string, volume: number = 0.3): HTMLAudioElement | null {
-    if (!this.isEnabled) return null;
+  private bgm: HTMLAudioElement | null = null;
+
+  // Play background music dengan loop (Singleton implementation)
+  playBackgroundMusic(src: string, volume: number = 0.3): void {
+    if (!this.isEnabled) return;
+
+    // If same music is already playing, just ensure volume and play
+    if (this.bgm && this.bgm.src.endsWith(src)) {
+      if (this.bgm.paused) this.bgm.play().catch(() => {});
+      this.bgm.volume = volume;
+      return;
+    }
+
+    // Stop existing BGM
+    if (this.bgm) {
+      this.bgm.pause();
+      this.bgm.currentTime = 0;
+      this.audioElements = this.audioElements.filter(a => a !== this.bgm);
+    }
 
     try {
       const audio = new Audio(src);
@@ -308,11 +334,18 @@ class AudioManager {
       audio.loop = true;
       audio.onerror = () => {};
       
+      this.bgm = audio;
       this.audioElements.push(audio);
       audio.play().catch(() => {});
-      return audio;
     } catch {
-      return null;
+      console.warn('Failed to play BGM');
+    }
+  }
+
+  stopBGM(): void {
+    if (this.bgm) {
+        this.bgm.pause();
+        this.bgm.currentTime = 0;
     }
   }
 

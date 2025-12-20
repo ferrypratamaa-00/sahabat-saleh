@@ -88,6 +88,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
     });
 
     if (wrongSelected.length > 0) {
+      audioManager.playSound('/audio/bg_sound_lose.wav', 0.2);
       audioManager.playSound('/audio/kurang_tepat.mp3');
       setFeedback({
           isOpen: true,
@@ -101,7 +102,7 @@ const Game4: React.FC<Game4Props> = memo(({ onBack, onComplete }) => {
         setShowResult(false);
       }, 2000);
     } else if (correctSelected.length >= 3) {
-      audioManager.playCorrect();
+      audioManager.playSound('/audio/bg_sound_win.wav', 0.3);
       setTimeout(() => {
          audioManager.playSound('/audio/pilihan_sempurna.mp3');
       }, 500);

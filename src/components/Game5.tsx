@@ -99,10 +99,10 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
     const isCorrect = sequence.every((movement, index) => movement.order === correctMovements[index].order);
 
     if (isCorrect) {
-      audioManager.playCorrect();
+      audioManager.playSound('/audio/bg_sound_win.wav', 0.3);
       setTimeout(() => {
         audioManager.playSound('/audio/urutan_benar.mp3');
-      }, 500);
+      }, 1000);
 
       // toast.success('MasyaAllah! Sempurna! 🎉', { duration: 3000 });
       setFeedback({
@@ -113,6 +113,7 @@ const Game5: React.FC<Game5Props> = memo(({ onBack, onComplete }) => {
       });
       // setTimeout(onComplete, 4000);
     } else {
+      audioManager.playSound('/audio/bg_sound_lose.wav', 0.2);
       audioManager.playSound('/audio/urutan_salah.mp3');
       setFeedback({
           isOpen: true,

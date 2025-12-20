@@ -38,7 +38,11 @@ function App() {
     { id: 5, title: 'Salat', emoji: '🕌', image: '/images/game5/salat_takbir.png', description: 'Susun gerakan salat', completed: completedGames.has(5) },
   ];
 
-  const handleStart = useCallback(() => setCurrentPage('menu'), []);
+  const handleStart = useCallback(() => {
+    setCurrentPage('menu');
+    audioManager.playBackgroundMusic('/audio/bg_music.mp3', 0.2);
+  }, []);
+
   const handleSettings = useCallback(() => setCurrentPage('settings'), []);
 
   const handleSelectGame = useCallback((gameId: number) => {

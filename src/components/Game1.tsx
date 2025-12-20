@@ -124,8 +124,25 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             
             if (newSequence.length === steps.length - 1) {
                 setTimeout(() => {
-                audioManager.stopAll();
-                audioManager.playSound('/audio/game_selesai.mp3');
+                // audioManager.stopAll(); // Don't stop BGM? stopAll stops everything.
+                // We need to keep BGM running. stopAll kills BGM? 
+                // Let's check AudioManager. stopAll() does stop all sources.
+                // But playBackgroundMusic will restart if called? Or we should avoid stopAll here?
+                // The prompt says "bg music yang perlu diputar sepanjang game dan terus diulang ulang".
+                // So stopAll() is DANGEROUS now.
+                // I should change stopAll() usage or make it safer.
+                // For now, let's assume I need to fix stopAll later or accept it stops BGM.
+                // Actually, if I remove stopAll(), other sounds might overlap.
+                // But typically only one SFX plays.
+                // Let's remove stopAll() here to keep BGM, but stop other SFX if needed?
+                // Or modify stopAll to spare BGM.
+                // I'll modify Game1 to NOT call stopAll() blindly, or assume stopAll() kills BGM.
+                // Better: Update AudioManager to have stopSFX() vs stopAll().
+                // But for this step, let's just use the new sounds and maybe I'll patch AudioManager next.
+                // If I don't fix stopAll, BGM dies.
+                // I'll assume I will fix AudioManager's stopAll to exclude BGM or add stopSFX.
+                
+                audioManager.playSound('/audio/bg_sound_win.wav', 0.3);
                 setFeedback({
                     isOpen: true,
                     type: 'success',
@@ -136,7 +153,7 @@ const Game1: React.FC<Game1Props> = memo(({ onBack, onComplete }) => {
             }
             return newSequence;
         } else {
-            audioManager.playSound('/audio/salah.mp3');
+            audioManager.playSound('/audio/bg_sound_lose.wav', 0.2);
             setFeedback({
                 isOpen: true,
                 type: 'error',

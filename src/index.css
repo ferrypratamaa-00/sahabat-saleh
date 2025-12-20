@@ -7,13 +7,13 @@
   --border-soft: #FDE68A;
   /* Soft Yellow Border */
 
-  /* 🌿 Primary (Green - Success/Action) */
-  --primary: #10B981;
-  /* Emerald 500 */
-  --primary-hover: #059669;
-  /* Emerald 600 */
-  --primary-soft: #D1FAE5;
-  /* Emerald 100 */
+  /* 🌿 Primary (Orange - Main Theme) */
+  --primary: #F97316;
+  /* Orange 500 */
+  --primary-hover: #EA580C;
+  /* Orange 600 */
+  --primary-soft: #FFEDD5;
+  /* Orange 100 */
 
   /* 🌼 Secondary (Yellow - Highlight/Active) */
   --secondary: #F59E0B;
@@ -32,9 +32,9 @@
   /* Violet 500 */
 
   /* 2️⃣ STATUS & FEEDBACK */
-  --success: #34D399;
-  /* Emerald 400 */
-  --success-soft: #ECFDF5;
+  --success: #FB923C; 
+  /* Orange 400 - Keeping it consistent with requested theme */
+  --success-soft: #FFF7ED;/* Orange 50 */
   --warning: #FBBF24;
   /* Amber 400 */
   --warning-soft: #FFFBEB;

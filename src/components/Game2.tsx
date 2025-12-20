@@ -138,7 +138,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
         if (currentQuestionIndex + 1 < totalRounds) {
           setCurrentQuestionIndex(prev => prev + 1);
         } else {
-          audioManager.playSound('/audio/game2_selesai.mp3');
+          audioManager.playSound('/audio/bg_sound_win.wav', 0.3);
           setFeedback({
               isOpen: true,
               type: 'success',
@@ -148,7 +148,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
         }
       }, 2000);
     } else {
-      audioManager.playSound('/audio/coba_dengarkan_lagi.mp3');
+      audioManager.playSound('/audio/bg_sound_lose.wav', 0.2);
       setFeedback({
           isOpen: true,
           type: 'error',

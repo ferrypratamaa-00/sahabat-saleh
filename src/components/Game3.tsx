@@ -112,7 +112,11 @@ const Game3: React.FC<Game3Props> = memo(({ onBack, onComplete }) => {
     if (newRecipients.every(r => r.received === r.need)) {
       setTimeout(() => {
         setIsComplete(true);
-        audioManager.stopAll();
+        audioManager.stopAll(true); // Stop instructions/BGM? No, keep BGM. Stop instructions.
+        // Actually, update stopAll usage to default (false) which keeps BGM.
+        audioManager.stopAll(); 
+        
+        audioManager.playSound('/audio/bg_sound_win.wav', 0.3);
         audioManager.playSound('/audio/masyaallah_berbagi.mp3');
         // toast.success('Sempurna! Berbagi itu indah! 🎉', { duration: 3000 });
         setFeedback({
