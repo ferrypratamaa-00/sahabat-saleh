@@ -7,13 +7,19 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+  const [hasInteraction, setHasInteraction] = useState(false);
   const [progress, setProgress] = useState(0);
   const audioManager = AudioManager.getInstance();
 
+  const handleStart = () => {
+    setHasInteraction(true);
+    // Initialize AudioContext on user gesture
+    audioManager.playClick();
+    audioManager.playBackgroundMusic('/audio/bg_splash.wav', 0.7);
+  };
+
   useEffect(() => {
-    // Play splash music
-    // We use playBackgroundMusic to ensure it loops if loading is slow
-    audioManager.playBackgroundMusic('/audio/bg_splash.wav', 0.4);
+    if (!hasInteraction) return;
 
     // Simulate loading process
     const duration = 3000; // 3 seconds minimum splash
@@ -39,7 +45,48 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     return () => {
       clearInterval(timer);
     };
-  }, [onFinish]);
+  }, [hasInteraction, onFinish]);
+
+  if (!hasInteraction) {
+    return (
+        <div className="splash-screen" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            cursor: 'pointer'
+          }}
+          onClick={handleStart}
+        >
+             <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ 
+                    scale: [1, 1.05, 1],
+                    opacity: 1 
+                }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                style={{ textAlign: 'center' }}
+            >
+                 <h1 style={{ 
+                    fontSize: 'clamp(2rem, 5vw, 4rem)', 
+                    color: '#F97316', 
+                    fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
+                    marginBottom: '2rem'
+                 }}>
+                     Klik untuk Memulai
+                 </h1>
+                 <div style={{ fontSize: '3rem' }}>👆</div>
+            </motion.div>
+        </div>
+    );
+  }
 
   return (
     <div className="splash-screen" style={{
