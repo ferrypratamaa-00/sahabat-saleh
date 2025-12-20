@@ -1,43 +1,47 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/images/opening/character_boy.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-    <meta name="description" content="Game edukatif interaktif untuk anak 4-6 tahun belajar wudu, huruf hijaiyah, berbagi, dan salat" />
-    <meta name="theme-color" content="#059669" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Si Saleh" />
-    <meta name="application-name" content="Petualangan Sahabat Saleh" />
-    <meta name="msapplication-TileColor" content="#059669" />
-    <meta name="msapplication-config" content="/browserconfig.xml" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/images/opening/character_boy.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/opening/character_boy.png" />
-    <title>Si Saleh - Game Edukatif Anak</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Register Service Worker untuk offline capability
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').then(reg => {
-            console.log('Service Worker registered:', reg);
-          }).catch(err => {
-            console.log('Service Worker registration failed:', err);
-          });
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/images/opening/character_boy.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="description"
+    content="Game edukatif interaktif untuk anak 4-6 tahun belajar wudu, huruf hijaiyah, berbagi, dan salat" />
+  <meta name="theme-color" content="#059669" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Si Saleh" />
+  <meta name="application-name" content="Petualangan Sahabat Saleh" />
+  <meta name="msapplication-TileColor" content="#059669" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/images/opening/character_boy.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/opening/character_boy.png" />
+  <title>Si Saleh - Game Edukatif Anak</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // Register Service Worker untuk offline capability
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          console.log('Service Worker registered:', reg);
+        }).catch(err => {
+          console.log('Service Worker registration failed:', err);
         });
+      });
+    }
+
+    // Disable zoom and scroll
+    document.addEventListener('touchmove', (e) => {
+      if (e.scale !== 1) {
+        e.preventDefault();
       }
-      
-      // Disable zoom and scroll
-      document.addEventListener('touchmove', (e) => {
-        if (e.scale !== 1) {
-          e.preventDefault();
-        }
-      }, { passive: false });
-    </script>
-  </body>
+    }, { passive: false });
+  </script>
+</body>
+
 </html>
