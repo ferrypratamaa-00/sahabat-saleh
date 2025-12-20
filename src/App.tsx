@@ -59,7 +59,7 @@ function App() {
 
   const handleStart = useCallback(() => {
     setCurrentPage('menu');
-    audioManager.playBackgroundMusic('/audio/bg_music.mp3', 0.2);
+    audioManager.playBackgroundMusic('/audio/bg_music.mp3', 0.4);
   }, []);
 
   const handleSettings = useCallback(() => setCurrentPage('settings'), []);
