@@ -19,7 +19,10 @@ const Game5 = lazy(() => import('./components/Game5'));
 
 type Page = 'opening' | 'menu' | 'game1' | 'game2' | 'game3' | 'game4' | 'game5' | 'reward' | 'settings' | 'theme';
 
+import SplashScreen from './components/SplashScreen';
+
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [currentPage, setCurrentPage] = useState<Page>('opening');
   const [completedGames, setCompletedGames] = useState<Set<number>>(new Set());
   const audioManager = AudioManager.getInstance();
@@ -27,8 +30,24 @@ function App() {
   // Stop audio saat pindah halaman
   useEffect(() => {
     // We might want to keep background audio? But for now stop speech.
-    audioManager.stopAll();
-  }, [currentPage]);
+    // audioManager.stopAll(); // Don't stop all if BGM is running?
+    // Actually, App's stopAll() was aggressive.
+    // But for page transition, we usually want to stop previous VO.
+    // Let's use the new stopAll(includeBGM: false) default.
+    if (!showSplash) {
+        audioManager.stopAll(false);
+    }
+  }, [currentPage, showSplash]);
+
+  const handleSplashFinish = useCallback(() => {
+    // Stop splash music? Or let it flow to Opening?
+    // User said "splash screen berfungsi untuk menunggu semuanya kelar".
+    // Usually splash music stops. "bg_splash" vs "opening_welcome" vs "bg_music".
+    // Opening Story plays "opening_welcome". So we MUST stop splash music.
+    audioManager.stopBGM(); // Stop splash BGM
+    setShowSplash(false);
+    // Opening Story will mount and play its own audio.
+  }, []);
 
   const games = [
     { id: 1, title: 'Wudu Seru', emoji: '💧', image: '/images/game1/wudu_muka.png', description: 'Belajar wudu dengan seru', completed: completedGames.has(1) },
@@ -105,6 +124,10 @@ function App() {
       </Suspense>
     );
   };
+
+  if (showSplash) {
+    return <SplashScreen onFinish={handleSplashFinish} />;
+  }
 
   return (
     <div className="app">
