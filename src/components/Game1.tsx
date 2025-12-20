@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Droplet, Hand, Smile, Wind, Sparkles, ArrowLeft, CheckCircle, ArrowRight } from 'lucide-react';
+import { Droplet, Hand, Smile, Wind, Sparkles, ArrowLeft, CheckCircle, ArrowRight, User, Ear, Footprints } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
 import FeedbackModal from './FeedbackModal';
 // import toast from 'react-hot-toast';
@@ -11,6 +11,10 @@ const steps = [
   { name: 'Berkumur', emoji: '😊', image: '/images/game1/wudu_kumur.png', icon: Smile, sound: 'Berkumur tiga kali', color: '#e0e7ff', audio: '/audio/berkumur.mp3' },
   { name: 'Istinsyaq', emoji: '👃', image: '/images/game1/wudu_hidung.png', icon: Wind, sound: 'Hirup air ke hidung tiga kali', color: '#f0f9ff', audio: '/audio/istinsyaq.mp3' },
   { name: 'Mencuci Muka', emoji: '😌', image: '/images/game1/wudu_muka.png', icon: Droplet, sound: 'Cuci muka tiga kali', color: '#e0f2fe', audio: '/audio/cuci_muka.mp3' },
+  { name: 'Mencuci Tangan ke Siku', emoji: '💪', image: '/images/game1/wudu_siku.png', icon: Hand, sound: 'Cuci tangan sampai siku tiga kali', color: '#dbeafe', audio: '/audio/cuci_siku.mp3' },
+  { name: 'Mengusap Kepala', emoji: '💆', image: '/images/game1/wudu_kepala.png', icon: User, sound: 'Usap sebagian kepala', color: '#e0e7ff', audio: '/audio/usap_kepala.mp3' },
+  { name: 'Mengusap Telinga', emoji: '👂', image: '/images/game1/wudu_telinga.png', icon: Ear, sound: 'Usap kedua telinga', color: '#f0f9ff', audio: '/audio/usap_telinga.mp3' },
+  { name: 'Mencuci Kaki', emoji: '🦶', image: '/images/game1/wudu_kaki.png', icon: Footprints, sound: 'Cuci kaki sampai mata kaki tiga kali', color: '#e0f2fe', audio: '/audio/cuci_kaki.mp3' },
   { name: 'Selesai!', emoji: '✨', image: '/images/game1/wudu_selesai.png', icon: Sparkles, sound: 'Alhamdulillah, wudu kamu sudah sempurna', color: '#dcfce7', audio: '/audio/wudu_selesai.mp3' },
 ];
 
