@@ -17,6 +17,10 @@ const phrases = {
     'istinsyaq.mp3': 'Hirup air ke hidung tiga kali',
     'cuci_muka.mp3': 'Cuci muka tiga kali',
     'wudu_selesai.mp3': 'Alhamdulillah, wudu kamu sudah sempurna',
+    'cuci_siku.mp3': 'Cuci tangan sampai siku tiga kali',
+    'usap_kepala.mp3': 'Usap sebagian kepala',
+    'usap_telinga.mp3': 'Usap kedua telinga',
+    'cuci_kaki.mp3': 'Cuci kaki sampai mata kaki tiga kali',
 
     // Game 2 (Hijaiyah)
     'cari_huruf.mp3': 'Cari huruf',
