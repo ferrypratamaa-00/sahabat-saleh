@@ -22,7 +22,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     if (!hasInteraction) return;
 
     // Simulate loading process
-    const duration = 3000; // 3 seconds minimum splash
+    const duration = 2500; // Adjusted to match audio length approx 2.5s
     const interval = 30;
     const steps = duration / interval;
     
