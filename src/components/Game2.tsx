@@ -24,68 +24,78 @@ interface Game2Props {
 }
 
 const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
-  const [targetLetter, setTargetLetter] = useState(letters[0]);
+  const [queue, setQueue] = useState<typeof letters>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [options, setOptions] = useState<typeof letters>([]);
   const [score, setScore] = useState(0);
-  const [round, setRound] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [feedback, setFeedback] = useState<{isOpen: boolean, type: 'success' | 'error', title: string, message: string} | null>(null);
   const audioManager = AudioManager.getInstance();
   const totalRounds = 5;
 
+  // Initialize Game: Shuffle Queue
   useEffect(() => {
-    generateOptions();
-  }, [round]);
+    const shuffled = [...letters].sort(() => Math.random() - 0.5).slice(0, totalRounds);
+    setQueue(shuffled);
+    setCurrentQuestionIndex(0);
+  }, []);
 
+  // Setup Round whenever index or queue changes
   useEffect(() => {
-    // Play sound saat huruf baru muncul
-    if (targetLetter) {
+    if (queue.length > 0 && currentQuestionIndex < queue.length) {
+      const target = queue[currentQuestionIndex];
+      generateOptions(target);
+      playQuestionAudio(target);
+    }
+  }, [queue, currentQuestionIndex]);
+
+  const playQuestionAudio = (target: typeof letters[0]) => {
+      audioManager.stopAll();
+      // "Cari huruf..." 
+      // Delay slightly to allow UI to settle? Not strictly needed but good for flow
       setTimeout(() => {
-        // "Cari huruf..." + [Huruf]
-        audioManager.stopAll();
         audioManager.playInstruction('/audio/cari_huruf.mp3');
         setTimeout(() => {
-          audioManager.playSound(targetLetter.audio);
-        }, 1000);
+          audioManager.playSound(target.audio);
+        }, 1200); // Wait for instruction to finish roughly
       }, 500);
-    }
-  }, [targetLetter]);
+  };
 
-  const generateOptions = () => {
-    const randomTarget = letters[Math.floor(Math.random() * letters.length)];
-    setTargetLetter(randomTarget);
-    
+  const generateOptions = (target: typeof letters[0]) => {
     const wrongs = letters
-      .filter(l => l.arabic !== randomTarget.arabic)
+      .filter(l => l.arabic !== target.arabic)
       .sort(() => 0.5 - Math.random())
       .slice(0, 3);
     
-    setOptions([randomTarget, ...wrongs].sort(() => 0.5 - Math.random()));
+    setOptions([target, ...wrongs].sort(() => 0.5 - Math.random()));
   };
 
   const playLetterSound = () => {
-    audioManager.stopAll();
-    audioManager.playSound(targetLetter.audio);
+    if (queue.length > 0 && currentQuestionIndex < queue.length) {
+        const target = queue[currentQuestionIndex];
+        audioManager.stopAll();
+        audioManager.playSound(target.audio);
+    }
   };
 
   const handleSelect = (letter: typeof letters[0]) => {
+    const target = queue[currentQuestionIndex];
     audioManager.stopAll();
 
-    if (letter.arabic === targetLetter.arabic) {
+    if (letter.arabic === target.arabic) {
       audioManager.playSound('/audio/benar.mp3'); 
       
       setTimeout(() => {
          audioManager.playSound(letter.audio);
       }, 1000);
 
-      // toast.success(`Benar! Huruf ${letter.name}`, { icon: '✨', duration: 2000 });
       setScore(score + 1);
       setShowResult(true);
 
       setTimeout(() => {
         setShowResult(false);
-        if (round + 1 < totalRounds) {
-          setRound(round + 1);
+        if (currentQuestionIndex + 1 < totalRounds) {
+          setCurrentQuestionIndex(prev => prev + 1);
         } else {
           audioManager.playSound('/audio/game2_selesai.mp3');
           setFeedback({
@@ -104,7 +114,6 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
           title: 'Belum Tepat',
           message: 'Coba dengarkan lagi ya! 🎧'
       });
-      // toast('Belum tepat, coba lagi! 🎧', { icon: '🤔', duration: 1500 });
     }
   };
 
@@ -131,20 +140,20 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
         
         <div className="progress-container">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span>Level {round + 1}/{totalRounds}</span>
+            <span>Level {currentQuestionIndex + 1}/{totalRounds}</span>
             <span>Skor: {score} 🌟</span>
           </div>
           <div className="progress-bar">
             <div 
               className="progress-fill" 
-              style={{ width: `${((round + 1) / totalRounds) * 100}%` }}
+              style={{ width: `${((currentQuestionIndex + 1) / totalRounds) * 100}%` }}
             />
           </div>
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={round}
+            key={currentQuestionIndex}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -167,24 +176,6 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
               Dengarkan dan cari huruf:
             </p>
             
-            {/* <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={playLetterSound}
-              style={{
-                fontSize: 'clamp(5rem, 15vw, 8rem)',
-                cursor: 'pointer',
-                display: 'inline-block',
-                padding: '1rem 2rem',
-                background: 'white',
-                borderRadius: '1rem',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                margin: '1rem 0'
-              }}
-            >
-              {showResult ? '✨' : targetLetter.arabic}
-            </motion.div> */}
-
             <motion.button
               onClick={playLetterSound}
               whileHover={{ scale: 1.05 }}
@@ -206,7 +197,7 @@ const Game2: React.FC<Game2Props> = memo(({ onBack, onComplete }) => {
         <div className="options">
           {options.map((letter, index) => (
             <motion.div
-              key={`${round}-${index}`}
+              key={`${currentQuestionIndex}-${index}`}
               className="option-item"
               onClick={() => !showResult && handleSelect(letter)}
               whileHover={{ scale: 1.05 }}
