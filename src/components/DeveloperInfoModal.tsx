@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, ExternalLink } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface DeveloperInfoModalProps {
   isOpen: boolean;
