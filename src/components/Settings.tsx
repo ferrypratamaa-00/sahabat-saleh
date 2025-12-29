@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX, Info } from 'lucide-react';
 import AudioManager from '../utils/AudioManager';
+import DeveloperInfoModal from './DeveloperInfoModal';
 
 interface SettingsProps {
   onBack: () => void;
@@ -10,6 +11,7 @@ interface SettingsProps {
 const Settings: React.FC<SettingsProps> = ({ onBack }) => {
   const audioManager = AudioManager.getInstance();
   const [isAudioEnabled, setIsAudioEnabled] = useState(audioManager.isAudioEnabled());
+  const [showDevInfo, setShowDevInfo] = useState(false);
 
   const toggleAudio = () => {
     const newState = !isAudioEnabled;
@@ -55,7 +57,34 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
           {isAudioEnabled ? <Volume2 size={32} /> : <VolumeX size={32} />}
           <span>{isAudioEnabled ? 'Suara: NYALA' : 'Suara: MATI'}</span>
         </motion.button>
+
+        <motion.button
+          className="setting-item"
+          onClick={() => {
+            audioManager.playClick();
+            setShowDevInfo(true);
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            background: '#8b5cf6', // Violet-500
+            padding: '1.5rem 3rem',
+            borderRadius: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            fontSize: '1.5rem',
+            width: '100%',
+            justifyContent: 'center',
+            color: 'white'
+          }}
+        >
+          <Info size={32} />
+          <span>Info Pengembang</span>
+        </motion.button>
       </div>
+
+      <DeveloperInfoModal isOpen={showDevInfo} onClose={() => setShowDevInfo(false)} />
 
       <motion.button
         className="btn-back"
