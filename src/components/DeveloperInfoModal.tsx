@@ -103,8 +103,9 @@ const DeveloperInfoModal: React.FC<DeveloperInfoModalProps> = ({
                     lineHeight: 1.6
                 }}
               >
-                <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Developer: Attijani</p>
-                <p>(TK Kusuma Probolinggo)</p>
+                <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Developer: Ahmad Attijani</p>
+                <p style={{ marginBottom: '0.5rem' }}>(TK Kusuma Probolinggo)</p>
+                <p>No. HP: 085211788020</p>
               </motion.div>
               
               <motion.button
